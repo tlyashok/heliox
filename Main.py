@@ -4,14 +4,16 @@ from PyQt5 import QtWidgets
 from PyQt5.QtWidgets import QApplication, QFileDialog, QMainWindow
 
 import Heliocs
-
+import график
 
 class MainWindow(Heliocs.Ui_MainWindow, QtWidgets.QMainWindow):
     commonList= []
     file = ""
+    ggg = ''
     def __init__(self):
         super(MainWindow, self).__init__()
         self.setupUi(self)
+        self.ggg = график.Ui_Form()
         self.patientButton.clicked.connect(self.patientButtonClicked)
     def patientButtonClicked(self):
         self.file = str(QFileDialog.getExistingDirectory(self, 'Выбор папки...'))

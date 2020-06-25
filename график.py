@@ -8,9 +8,14 @@
 
 
 from PyQt5 import QtCore, QtGui, QtWidgets
+from pyqtgraph import PlotWidget
 
 
-class Ui_Form(object):
+class Ui_Form(QtWidgets.QWidget):
+    def __init__(self):
+        super().__init__()
+        self.setupUi(self)
+
     def setupUi(self, Form):
         Form.setObjectName("Form")
         Form.setEnabled(True)
@@ -432,7 +437,7 @@ class Ui_Form(object):
         self.formLayout_3.setWidget(0, QtWidgets.QFormLayout.LabelRole, self.id_patient_w)
         self.horizontalLayout_2.addWidget(self.widget_7)
         self.verticalLayout_3.addWidget(self.Patient)
-        self.widget_5 = Graphic(self.widget)
+        self.widget_5 = PlotWidget(self.widget)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Preferred)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(5)
@@ -480,4 +485,4 @@ class Ui_Form(object):
         self.label_15.setText(_translate("Form", "Длительность ингаляции:"))
         self.dlitelnost_inh_w.setText(_translate("Form", "---"))
         self.id_patient_w.setText(_translate("Form", "ID пациента:"))
-from pyqtgraph import Graphic
+        self.show()
