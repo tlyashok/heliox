@@ -9,12 +9,13 @@ import график
 class MainWindow(Heliocs.Ui_MainWindow, QtWidgets.QMainWindow):
     commonList= []
     file = ""
-    ggg = ''
+    graphic = ''
     def __init__(self):
         super(MainWindow, self).__init__()
         self.setupUi(self)
-        self.ggg = график.Ui_Form()
+        self.graphic = график.Ui_Form()
         self.patientButton.clicked.connect(self.patientButtonClicked)
+        self.inh_1.clicked.connect(self.inhGraph)
     def patientButtonClicked(self):
         self.file = str(QFileDialog.getExistingDirectory(self, 'Выбор папки...'))
         self.commonList = []
@@ -78,7 +79,11 @@ class MainWindow(Heliocs.Ui_MainWindow, QtWidgets.QMainWindow):
                         for y in range(0,8):
                             self.inhTable.setItem(temp_row-1, y, QtWidgets.QTableWidgetItem('---'))
                     temp_row += 1
+        self.graphic.id_patient_w.setText(self.id_w.text())
 
+    def inhGraph(self):
+        self.graphic.graph.setBackground('w')
+        self.graphic.show()
 
 
     def clear(self):
