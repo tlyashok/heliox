@@ -65,14 +65,17 @@ class MainWindow(Heliocs.Ui_MainWindow, QtWidgets.QMainWindow):
                 with open(os.path.join(self.file, self.commonList[self.patientList.currentRow()], i), 'r', encoding='UTF-8') as filedata:
                     fullinfo = list(filedata.read().split("\n"))
                     info = fullinfo[len(fullinfo)-2]
+                    self.inhTable.setRowCount(temp_row)
                     if info[0] == '#':
-                        self.inhTable.setRowCount(temp_row)
                         info = list(info.split(';'))
                         info = info[2:9]
                         for y in range(0,7):
                             self.inhTable.setItem(temp_row-1, y, QtWidgets.QTableWidgetItem(info[y]))
-                        self.inhTable.setItem(temp_row-1, 9, QtWidgets.QTableWidgetItem(info[1]))
-                        temp_row += 1
+                        self.inhTable.setItem(temp_row-1, 7, QtWidgets.QTableWidgetItem(i))
+                    else:
+                        for y in range(0,8):
+                            self.inhTable.setItem(temp_row-1, y, QtWidgets.QTableWidgetItem('---'))
+                    temp_row += 1
 
 
 
