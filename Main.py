@@ -38,6 +38,7 @@ class MainWindow(Heliocs.Ui_MainWindow, QtWidgets.QMainWindow):
                     i += 1
                 else:
                     self.commonList.remove(self.commonList[i])
+        self.patientList.setMinimumWidth(self.patientList.sizeHintForColumn(0) + 30)
         self.patientList.itemClicked.connect(self.selectPatient)
 
 
