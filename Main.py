@@ -16,6 +16,8 @@ class MainWindow(Heliocs.Ui_MainWindow, QtWidgets.QMainWindow):
         self.graphic = график.Ui_Form()
         self.patientButton.clicked.connect(self.patientButtonClicked)
         self.inh_1.clicked.connect(self.inhGraph)
+        self.inhTable.itemClicked.connect(self.tableClicked)
+
     def patientButtonClicked(self):
         self.file = str(QFileDialog.getExistingDirectory(self, 'Выбор папки...'))
         self.commonList = []
@@ -80,6 +82,14 @@ class MainWindow(Heliocs.Ui_MainWindow, QtWidgets.QMainWindow):
                             self.inhTable.setItem(temp_row-1, y, QtWidgets.QTableWidgetItem('---'))
                     temp_row += 1
         self.graphic.id_patient_w.setText(self.id_w.text())
+        temp_string = ""
+        if self.patronymic_w.text() != '---':
+            temp_string = self.patronymic_w.text() + ' '
+        if self.name_w.text() != '---':
+            temp_string = temp_string + self.name_w.text() + ' '
+        if self.surname_w.text() != '---':
+            temp_string = temp_string + self.surname_w.text() + ' '
+        self.graphic.Patientl_w.setText(temp_string)
 
     def inhGraph(self):
         self.graphic.graph.setBackground('w')
@@ -96,7 +106,8 @@ class MainWindow(Heliocs.Ui_MainWindow, QtWidgets.QMainWindow):
         self.weight_w.setText("---")
         self.heigh_w.setText("---")
 
-
+    def tableClicked(self):
+        self.graphic.Date_inhalation_w.setText(self.inhTable.item(self.inhTable.currentRow(), 0).text())
 
 
 
