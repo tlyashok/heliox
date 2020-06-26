@@ -10,6 +10,7 @@ class MainWindow(Heliocs.Ui_MainWindow, QtWidgets.QMainWindow):
     commonList= []
     file = ""
     graphic = ''
+    logfile = ''
     def __init__(self):
         super(MainWindow, self).__init__()
         self.setupUi(self)
@@ -94,6 +95,7 @@ class MainWindow(Heliocs.Ui_MainWindow, QtWidgets.QMainWindow):
     def inhGraph(self):
         self.graphic.graph.setBackground('w')
         self.graphic.show()
+        self.graphic.Davlenie_v_maske.isChecked()
 
 
     def clear(self):
@@ -108,7 +110,20 @@ class MainWindow(Heliocs.Ui_MainWindow, QtWidgets.QMainWindow):
 
     def tableClicked(self):
         self.graphic.Date_inhalation_w.setText(self.inhTable.item(self.inhTable.currentRow(), 0).text())
-
+        self.graphic.Davlenie_v_maske.setChecked(False)
+        self.graphic.koncetracia_O2.setChecked(False)
+        self.graphic.temperatura_vdihaemoi_smesi.setChecked(False)
+        self.graphic.obiem.setChecked(False)
+        self.graphic.chastota_dihaniya.setChecked(False)
+        self.graphic.potok.setChecked(False)
+        self.graphic.minutni_obiem.setChecked(False)
+        self.graphic.SpO2.setChecked(False)
+        self.graphic.pulse.setChecked(False)
+        if os.path.exists(os.path.join(self.file, self.commonList[self.patientList.currentRow()],
+                                   self.inhTable.item(self.inhTable.currentRow(), 7).text())):
+            with open(os.path.join(self.file, self.commonList[self.patientList.currentRow()],
+                                   self.inhTable.item(self.inhTable.currentRow(), 7).text()), 'r', encoding="UTF-8") as currentlog:
+                pass
 
 
 

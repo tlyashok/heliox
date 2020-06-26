@@ -437,6 +437,7 @@ class Ui_Form(QtWidgets.QWidget):
         self.formLayout_3.setWidget(0, QtWidgets.QFormLayout.LabelRole, self.label_8)
         self.horizontalLayout_2.addWidget(self.widget_7)
         self.verticalLayout_3.addWidget(self.Patient)
+
         self.graph = PlotWidget(self.widget)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Preferred)
         sizePolicy.setHorizontalStretch(0)
