@@ -108,6 +108,7 @@ class MainWindow(Heliocs.Ui_MainWindow, QtWidgets.QMainWindow):
         self.weight_w.setText("---")
         self.heigh_w.setText("---")
 
+
     def tableClicked(self):
         self.graphic.Date_inhalation_w.setText(self.inhTable.item(self.inhTable.currentRow(), 0).text())
         self.graphic.Davlenie_v_maske.setChecked(False)
