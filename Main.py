@@ -3,8 +3,10 @@ import sys
 
 import pyqtgraph
 from PyQt5 import QtWidgets, QtCore
-from PyQt5.QtGui import QColor
-from PyQt5.QtWidgets import QApplication, QFileDialog, QMainWindow
+from PyQt5.QtGui import QColor, QPixmap
+from PyQt5.QtPrintSupport import QPrinter
+from PyQt5.QtWidgets import QApplication, QFileDialog, QMainWindow, QTextEdit
+from pyqtgraph.exporters import ImageExporter
 
 import Heliocs
 import график
@@ -29,6 +31,7 @@ class MainWindow(Heliocs.Ui_MainWindow, QtWidgets.QMainWindow):
         self.patientButton.clicked.connect(self.patientButtonClicked)
         self.inh_1.clicked.connect(self.inhGraph)
         self.inhTable.itemClicked.connect(self.tableClicked)
+        self.graphic.pushButton.clicked.connect(self.saver)
 
     def patientButtonClicked(self):
         self.file = str(QFileDialog.getExistingDirectory(self, 'Выбор папки...'))
@@ -184,6 +187,9 @@ class MainWindow(Heliocs.Ui_MainWindow, QtWidgets.QMainWindow):
 
 
 
+
+
+
     def Davl(self):
         if self.graphic.Davlenie_v_maske.isChecked():
             pen = pyqtgraph.mkPen(color=(255,0,0), width=1, style=QtCore.Qt.SolidLine)
@@ -246,6 +252,13 @@ class MainWindow(Heliocs.Ui_MainWindow, QtWidgets.QMainWindow):
             self.pulse_gr.setData(self.pulse_g[0], self.pulse_g[1], pen=pen)
         else:
             self.pulse_gr.setData([], [])
+
+    def saver(self):
+        exporter = ImageExporter(self.graphic.graph.getPlotItem())
+        exporter.export()
+        te = QTextEdit()
+        te.print()
+
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
