@@ -15,17 +15,17 @@ class MainWindow(Heliocs.Ui_MainWindow, QtWidgets.QMainWindow):
     graphic = ''
     def __init__(self):
         super(MainWindow, self).__init__()
-        self.pulse_g = [[],[]]
-        self.SpO2_g = [[],[]]
-        self.minutni_obiem_g = [[],[]]
-        self.potok_g =[[],[]]
-        self.chastota_dihaniya_g =[[],[]]
-        self.obiem_g =[[],[]]
-        self.temperatura_vdihaemoi_smesi_g =[[],[]]
-        self.koncetracia_O2_g = [[],[]]
-        self.Davlenie_v_maske_g = [[],[]]
-        self.setupUi(self)
         self.graphic = график.Ui_Form()
+        self.setupUi(self)
+        self.davl_gr = self.graphic.graph.plot([],[])
+        self.konc_gr = self.graphic.graph.plot([],[])
+        self.temp_gr = self.graphic.graph.plot([],[])
+        self.obiem_gr = self.graphic.graph.plot([],[])
+        self.chastota_gr = self.graphic.graph.plot([],[])
+        self.potok_gr = self.graphic.graph.plot([],[])
+        self.minutni_gr = self.graphic.graph.plot([],[])
+        self.spo2_gr= self.graphic.graph.plot([],[])
+        self.pulse_gr = self.graphic.graph.plot([],[])
         self.patientButton.clicked.connect(self.patientButtonClicked)
         self.inh_1.clicked.connect(self.inhGraph)
         self.inhTable.itemClicked.connect(self.tableClicked)
@@ -120,18 +120,22 @@ class MainWindow(Heliocs.Ui_MainWindow, QtWidgets.QMainWindow):
         self.weight_w.setText("---")
         self.heigh_w.setText("---")
 
+    def clearArr(self):
+        self.pulse_g = [[],[]]
+        self.SpO2_g = [[],[]]
+        self.minutni_obiem_g = [[],[]]
+        self.potok_g =[[],[]]
+        self.chastota_dihaniya_g =[[],[]]
+        self.obiem_g =[[],[]]
+        self.temperatura_vdihaemoi_smesi_g =[[],[]]
+        self.koncetracia_O2_g = [[],[]]
+        self.Davlenie_v_maske_g = [[],[]]
+
 
     def tableClicked(self):
+        self.clearArr()
         self.graphic.Date_inhalation_w.setText(self.inhTable.item(self.inhTable.currentRow(), 0).text())
-        self.graphic.Davlenie_v_maske.setChecked(False)
-        self.graphic.koncetracia_O2.setChecked(False)
-        self.graphic.temperatura_vdihaemoi_smesi.setChecked(False)
-        self.graphic.obiem.setChecked(False)
-        self.graphic.chastota_dihaniya.setChecked(False)
-        self.graphic.potok.setChecked(False)
-        self.graphic.minutni_obiem.setChecked(False)
-        self.graphic.SpO2.setChecked(False)
-        self.graphic.pulse.setChecked(False)
+        self.graphic.dlitelnost_inh_w.setText(self.inhTable.item(self.inhTable.currentRow(),1).text())
         if os.path.exists(os.path.join(self.file, self.commonList[self.patientList.currentRow()],
                                    self.inhTable.item(self.inhTable.currentRow(), 7).text())):
             with open(os.path.join(self.file, self.commonList[self.patientList.currentRow()],
@@ -140,7 +144,7 @@ class MainWindow(Heliocs.Ui_MainWindow, QtWidgets.QMainWindow):
                 for i in logfile:
                     i = i[0:len(i)-2]
                     i = i.split(';')
-                    if len(i) == 28:
+                    if len(i) > 20 and i[0] != '#':
                         self.Davlenie_v_maske_g[0].append(int(i[0])/100)
                         self.koncetracia_O2_g[0].append(int(i[0])/100)
                         self.temperatura_vdihaemoi_smesi_g[0].append(int(i[0])/100)
@@ -159,6 +163,15 @@ class MainWindow(Heliocs.Ui_MainWindow, QtWidgets.QMainWindow):
                         self.minutni_obiem_g[1].append(int(i[14]))
                         self.SpO2_g[1].append(int(i[19]))
                         self.pulse_g[1].append(int(i[20]))
+                self.Davl()
+                self.Konc()
+                self.Temp()
+                self.Obiem()
+                self.Chastota()
+                self.Potok()
+                self.Minutni()
+                self.SpO2()
+                self.Pulse()
                 self.graphic.Davlenie_v_maske.toggled.connect(self.Davl)
                 self.graphic.koncetracia_O2.toggled.connect(self.Konc)
                 self.graphic.temperatura_vdihaemoi_smesi.toggled.connect(self.Temp)
@@ -168,69 +181,69 @@ class MainWindow(Heliocs.Ui_MainWindow, QtWidgets.QMainWindow):
                 self.graphic.minutni_obiem.toggled.connect(self.Minutni)
                 self.graphic.SpO2.toggled.connect(self.SpO2)
                 self.graphic.pulse.toggled.connect(self.Pulse)
-                self.graphic.graph.clear()
+
 
 
     def Davl(self):
         if self.graphic.Davlenie_v_maske.isChecked():
-            pen = pyqtgraph.mkPen(color='r', width=1, style=QtCore.Qt.SolidLine)
-            self.davl_gr = self.graphic.graph.plot(self.Davlenie_v_maske_g[0], self.Davlenie_v_maske_g[1], pen=pen)
+            pen = pyqtgraph.mkPen(color=(255,0,0), width=1, style=QtCore.Qt.SolidLine)
+            self.davl_gr.setData(self.Davlenie_v_maske_g[0], self.Davlenie_v_maske_g[1], pen=pen)
         else:
             self.davl_gr.setData([],[])
 
     def Konc(self):
         if self.graphic.koncetracia_O2.isChecked():
-            pen = pyqtgraph.mkPen(color='g', width=1, style=QtCore.Qt.SolidLine)
-            self.konc_gr = self.graphic.graph.plot(self.koncetracia_O2_g[0], self.koncetracia_O2_g[1], pen=pen)
+            pen = pyqtgraph.mkPen(color=(0,255,0), width=1, style=QtCore.Qt.SolidLine)
+            self.konc_gr.setData(self.koncetracia_O2_g[0], self.koncetracia_O2_g[1], pen=pen)
         else:
             self.konc_gr.setData([],[])
 
     def Temp(self):
         if self.graphic.temperatura_vdihaemoi_smesi.isChecked():
-            pen = pyqtgraph.mkPen(color='b', width=1, style=QtCore.Qt.SolidLine)
-            self.temp_gr = self.graphic.graph.plot(self.temperatura_vdihaemoi_smesi_g[0], self.temperatura_vdihaemoi_smesi_g[1], pen=pen)
+            pen = pyqtgraph.mkPen(color=(0,0,255), width=1, style=QtCore.Qt.SolidLine)
+            self.temp_gr.setData(self.temperatura_vdihaemoi_smesi_g[0], self.temperatura_vdihaemoi_smesi_g[1], pen=pen)
         else:
             self.temp_gr.setData([],[])
 
     def Obiem(self):
         if self.graphic.obiem.isChecked():
-            pen = pyqtgraph.mkPen(color='k', width=1, style=QtCore.Qt.SolidLine)
-            self.obiem_gr = self.graphic.graph.plot(self.obiem_g[0], self.obiem_g[1], pen=pen)
+            pen = pyqtgraph.mkPen(color=(100,30,100), width=1, style=QtCore.Qt.SolidLine)
+            self.obiem_gr.setData(self.obiem_g[0], self.obiem_g[1], pen=pen)
         else:
             self.obiem_gr.setData([],[])
 
     def Chastota(self):
         if self.graphic.chastota_dihaniya.isChecked():
-            pen = pyqtgraph.mkPen(color='c', width=1, style=QtCore.Qt.SolidLine)
-            self.chastota_gr = self.graphic.graph.plot(self.chastota_dihaniya_g[0], self.chastota_dihaniya_g[1], pen=pen)
+            pen = pyqtgraph.mkPen(color=(0,255,255), width=1, style=QtCore.Qt.SolidLine)
+            self.chastota_gr.setData(self.chastota_dihaniya_g[0], self.chastota_dihaniya_g[1], pen=pen)
         else:
             self.chastota_gr.setData([],[])
 
     def Potok(self):
         if self.graphic.potok.isChecked():
-            pen = pyqtgraph.mkPen(color='l', width=1, style=QtCore.Qt.SolidLine)
-            self.potok_gr = self.graphic.graph.plot(self.potok_g[0], self.potok_g[1], pen=pen)
+            pen = pyqtgraph.mkPen(color=(255,0,255), width=1, style=QtCore.Qt.SolidLine)
+            self.potok_gr.setData(self.potok_g[0], self.potok_g[1], pen=pen)
         else:
             self.potok_gr.setData([],[])
 
     def Minutni(self):
         if self.graphic.minutni_obiem.isChecked():
-            pen = pyqtgraph.mkPen(color=(255,0,0), width=1, style=QtCore.Qt.SolidLine)
-            self.minutni_gr = self.graphic.graph.plot(self.minutni_obiem_g[0], self.minutni_obiem_g[1], pen=pen)
+            pen = pyqtgraph.mkPen(color=(100,200,100), width=1, style=QtCore.Qt.SolidLine)
+            self.minutni_gr.setData(self.minutni_obiem_g[0], self.minutni_obiem_g[1], pen=pen)
         else:
             self.minutni_gr.setData([], [])
 
     def SpO2(self):
-        if self.graphic.SpO2().isChecked():
-            pen = pyqtgraph.mkPen(color=(256,256,256), width=1, style=QtCore.Qt.SolidLine)
-            self.spo2_gr = self.graphic.graph.plot(self.SpO2_g[0], self.SpO2_g[1], pen=pen)
+        if self.graphic.SpO2.isChecked():
+            pen = pyqtgraph.mkPen(color=(100,50,100), width=1, style=QtCore.Qt.SolidLine)
+            self.spo2_gr.setData(self.SpO2_g[0], self.SpO2_g[1], pen=pen)
         else:
             self.spo2_gr.setData([], [])
 
     def Pulse(self):
         if self.graphic.pulse.isChecked():
-            pen = pyqtgraph.mkPen(color=(50,70,180), width=1, style=QtCore.Qt.SolidLine)
-            self.pulse_gr = self.graphic.graph.plot(self.pulse_g[0], self.pulse_g[1], pen=pen)
+            pen = pyqtgraph.mkPen(color=(0,100,0), width=1, style=QtCore.Qt.SolidLine)
+            self.pulse_gr.setData(self.pulse_g[0], self.pulse_g[1], pen=pen)
         else:
             self.pulse_gr.setData([], [])
 
