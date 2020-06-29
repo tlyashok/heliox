@@ -6,6 +6,7 @@ from PyQt5 import QtWidgets, QtCore
 from PyQt5.QtGui import QColor, QPixmap
 from PyQt5.QtPrintSupport import QPrinter
 from PyQt5.QtWidgets import QApplication, QFileDialog, QMainWindow, QTextEdit
+from fpdf import FPDF
 from pyqtgraph.exporters import ImageExporter
 
 import Heliocs
@@ -254,10 +255,15 @@ class MainWindow(Heliocs.Ui_MainWindow, QtWidgets.QMainWindow):
             self.pulse_gr.setData([], [])
 
     def saver(self):
-        exporter = ImageExporter(self.graphic.graph.getPlotItem())
-        exporter.export()
-        te = QTextEdit()
-        te.print()
+        pdf = FPDF()
+        pdf.add_page()
+        pdf.add_font('DejaVuSansBold', '', 'DejaVuSans-Bold.ttf', uni=True)
+        pdf.add_font('DejaVuSans', '', 'DejaVuSans.ttf', uni=True)
+        pdf.set_font('DejaVuSansBold', '', 25)
+        pdf.cell(190, 10, txt='Аппарат ГелиОкс', align='C', ln = 1)
+        pdf.cell(20,30,txt='')
+        pdf.output('test123.pdf', 'F')
+
 
 
 if __name__ == "__main__":
