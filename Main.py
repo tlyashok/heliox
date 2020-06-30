@@ -256,15 +256,15 @@ class MainWindow(Heliocs.Ui_MainWindow, QtWidgets.QMainWindow):
             self.pulse_gr.setData([], [])
 
     def printActive(self):
-        pdf = FPDF()
+        pdf = FPDF(orientation='P', unit='mm', format='A4')
         pdf.add_page()
         pdf.add_font('DejaVuSansBold', '', 'DejaVuSans-Bold.ttf', uni=True)
         pdf.add_font('DejaVuSans', '', 'DejaVuSans.ttf', uni=True)
-        pdf.set_font('DejaVuSansBold', '', 25)
-        pdf.cell(190, 10, txt='Аппарат ГелиОкс', align='C', ln = 1)
+        pdf.set_font('DejaVuSansBold', '', 20)
+        pdf.cell(190, 20, txt='Аппарат ГелиОкс', align='C', ln = 1)
         pdf.set_font('DejaVuSans', '', 12)
-        pdf.cell(150, 30, txt='ID пациента:{}'.format(self.graphic.id_patient_w.text()), ln = 1)
-        pdf.cell(150, 30, txt='ФИО пациента:{}'.format(self.graphic.Patientl_w.text()), ln = 1)
+        pdf.cell(150, 10, txt='ID пациента:{}'.format(self.graphic.id_patient_w.text()), ln = 1)
+        pdf.cell(150, 10, txt='ФИО пациента:{}'.format(self.graphic.Patientl_w.text()), ln = 1)
 
         now = datetime.now() #Высчитывание возраста
         temp = self.birhday_w.text().split('.')
@@ -275,13 +275,23 @@ class MainWindow(Heliocs.Ui_MainWindow, QtWidgets.QMainWindow):
         elif now.month == temp[1] and now.day >= temp[0]:
             year += 1
 
-        pdf.cell(150, 30, txt='Возраст:{}                    '
-                              'Вес:{}                    '
-                              'Рост:{}'.format(year, self.weight_w.text(), self.heigh_w.text()), ln = 1)
-        pdf.cell(150, 30, txt='Комментарий:{}'.format(self.commText.toPlainText()), ln=1)
+        pdf.cell(150, 10, txt='Возраст: {}                    '
+                              'Вес: {}                    '
+                              'Рост: {}'.format(year, self.weight_w.text(), self.heigh_w.text()), ln = 1)
+        pdf.multi_cell(150, 10, txt='Комментарий: {}'.format(self.commText.toPlainText()))
+        pdf.cell(150, 10, txt='Средняя концетрация O2, %: {}'.format(self.inhTable.item(self.inhTable.currentRow(), 3).text()), ln=1)
+        pdf.cell(150, 10, txt='Средняя температура, град. C: {}'.format(self.inhTable.item(self.inhTable.currentRow(), 6).text()), ln=1)
+        pdf.cell(150, 10, txt='Дата проведения ингаляции: {}'.format(self.inhTable.item(self.inhTable.currentRow(), 0).text() + " " +
+                                                                     self.inhTable.item(self.inhTable.currentRow(), 1).text()), ln=1)
+        if not os.path.exists('\\Heliox_temp'):
+            os.mkdir('\\Heliox_temp')
+        exporter = ImageExporter(self.graphic.graph.getPlotItem())
+        exporter.export('\\Heliox_temp\\temp_image.png')
+        pdf.image('\\Heliox_temp\\temp_image.png', w=180,h=110)
+        os.system('\\Heliox_temp\\temp_pdf.pdf')
 
-        pdf.cell(20,30,txt='')
-        pdf.output('test123.pdf', 'F')
+
+        pdf.output('\\Heliox_temp\\temp_pdf.pdf', 'F')
 
 
 
