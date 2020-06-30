@@ -34,6 +34,7 @@ class MainWindow(Heliocs.Ui_MainWindow, QtWidgets.QMainWindow):
         self.inh_1.clicked.connect(self.inhGraph)
         self.inhTable.itemClicked.connect(self.tableClicked)
         self.graphic.pechat_aktivnih_grafikov.clicked.connect(self.printActive)
+        self.graphic.pechat_grafikov_dihatelnogo_obiema.clicked.connect(self.printActive2)
 
     def patientButtonClicked(self):
         self.file = str(QFileDialog.getExistingDirectory(self, 'Выбор папки...'))
@@ -288,10 +289,49 @@ class MainWindow(Heliocs.Ui_MainWindow, QtWidgets.QMainWindow):
         exporter = ImageExporter(self.graphic.graph.getPlotItem())
         exporter.export('\\Heliox_temp\\temp_image.png')
         pdf.image('\\Heliox_temp\\temp_image.png', w=180,h=110)
+        pdf.output('\\Heliox_temp\\temp_pdf.pdf', 'F')
         os.system('\\Heliox_temp\\temp_pdf.pdf')
 
+    def printActive2(self):
+        pdf = FPDF(orientation='P', unit='mm', format='A4')
+        pdf.add_page()
+        pdf.add_font('DejaVuSansBold', '', 'DejaVuSans-Bold.ttf', uni=True)
+        pdf.add_font('DejaVuSans', '', 'DejaVuSans.ttf', uni=True)
+        pdf.set_font('DejaVuSansBold', '', 20)
+        pdf.cell(190, 20, txt='Аппарат ГелиОкс', align='C', ln=1)
+        pdf.set_font('DejaVuSans', '', 12)
+        pdf.cell(150, 10, txt='ID пациента:{}'.format(self.graphic.id_patient_w.text()), ln=1)
+        pdf.cell(150, 10, txt='ФИО пациента:{}'.format(self.graphic.Patientl_w.text()), ln=1)
 
-        pdf.output('\\Heliox_temp\\temp_pdf.pdf', 'F')
+        now = datetime.now()  # Высчитывание возраста
+        temp = self.birhday_w.text().split('.')
+        temp = [int(i) for i in temp]
+        year = now.year - temp[2] - 1
+        if now.month > temp[1]:
+            year += 1
+        elif now.month == temp[1] and now.day >= temp[0]:
+            year += 1
+
+        pdf.cell(150, 10, txt='Возраст: {}                    '
+                              'Вес: {}                    '
+                              'Рост: {}'.format(year, self.weight_w.text(), self.heigh_w.text()), ln=1)
+        pdf.multi_cell(150, 10, txt='Комментарий: {}'.format(self.commText.toPlainText()))
+        pdf.cell(150, 10,
+                 txt='Средняя концетрация O2, %: {}'.format(self.inhTable.item(self.inhTable.currentRow(), 3).text()),
+                 ln=1)
+        pdf.cell(150, 10, txt='Средняя температура, град. C: {}'.format(
+            self.inhTable.item(self.inhTable.currentRow(), 6).text()), ln=1)
+        pdf.cell(150, 10, txt='Дата проведения ингаляции: {}'.format(
+            self.inhTable.item(self.inhTable.currentRow(), 0).text() + " " +
+            self.inhTable.item(self.inhTable.currentRow(), 1).text()), ln=1)
+        if not os.path.exists('\\Heliox_temp'):
+            os.mkdir('\\Heliox_temp')
+        pen1 = pyqtgraph.mkPen(color=(100,30,100), width=1, style=QtCore.Qt.SolidLine)
+        exporter = ImageExporter(pyqtgraph.plot([[self.obiem_g[0], self.obiem_g[1]], [self.chastota_dihaniya_g[0], self.chastota_dihaniya_g[1]]]))
+        exporter.export('\\Heliox_temp\\temp_image2.png')
+        pdf.image('\\Heliox_temp\\temp_image2.png', w=180, h=110)
+        pdf.output('\\Heliox_temp\\temp_pdf2.pdf', 'F')
+        os.system('\\Heliox_temp\\temp_pdf2.pdf')
 
 
 
