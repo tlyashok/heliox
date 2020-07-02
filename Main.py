@@ -3,7 +3,7 @@ import sys
 
 import pyqtgraph
 from PyQt5 import QtWidgets, QtCore
-from PyQt5.QtWidgets import QApplication, QFileDialog
+from PyQt5.QtWidgets import QApplication, QFileDialog, QTableWidgetItem
 from fpdf import FPDF
 from datetime import datetime
 from pyqtgraph.exporters import ImageExporter
@@ -29,12 +29,18 @@ class MainWindow(Heliocs.Ui_MainWindow, QtWidgets.QMainWindow):
         self.minutni_gr = self.graphic.graph.plot([],[], name='Минутный объём (л/мин)')
         self.spo2_gr= self.graphic.graph.plot([],[], name='SpO2 (%)')
         self.pulse_gr = self.graphic.graph.plot([],[], name='Пульс (1/мин)')
+        self.FiO2_sr_gr = self.graphic.graph.plot([],[], name='FiO2 сред (%)')
+        self.V_sr_gr = self.graphic.graph.plot([],[], name='V сред (мл)')
+        self.F_sr_gr = self.graphic.graph.plot([],[], name='F сред (1/мин)')
+        self.T_sr_gr = self.graphic.graph.plot([],[], name='T сред (град)')
         self.patientButton.clicked.connect(self.patientButtonClicked)
         self.inh_1.clicked.connect(self.inhGraph)
         self.inhTable.itemClicked.connect(self.tableClicked)
         self.graphic.pechat_aktivnih_grafikov.clicked.connect(self.printActive)
         self.graphic.pechat_grafikov_dihatelnogo_obiema.clicked.connect(self.printActive2)
         self.graphic.save_button.clicked.connect(self.save_graph)
+        self.inh_3.clicked.connect(self.spisokInh)
+        self.inh_2.clicked.connect(self.othergraphic)
 
 
     def patientButtonClicked(self):
@@ -83,6 +89,10 @@ class MainWindow(Heliocs.Ui_MainWindow, QtWidgets.QMainWindow):
                     self.clear()
         else:
             self.clear()
+        self.FiO2_gr = []
+        self.V_gr = []
+        self.F_gr = []
+        self.T_gr = []
         temp_row = 1
         self.inhTable.setRowCount(1)
         for i in os.listdir(os.path.join(self.file, self.commonList[self.patientList.currentRow()])):
@@ -95,11 +105,48 @@ class MainWindow(Heliocs.Ui_MainWindow, QtWidgets.QMainWindow):
                         info = list(info.split(';'))
                         info = info[2:9]
                         for y in range(0,7):
-                            self.inhTable.setItem(temp_row-1, y, QtWidgets.QTableWidgetItem(info[y]))
-                        self.inhTable.setItem(temp_row-1, 7, QtWidgets.QTableWidgetItem(i))
+                            if y == 3:
+                                temp = []
+                                temp.append(info[0])
+                                temp.append(info[1])
+                                temp.append(info[y])
+                                self.FiO2_gr.append(temp)
+
+                            if y == 4:
+                                temp = []
+                                temp.append(info[0])
+                                temp.append(info[1])
+                                temp.append(info[y])
+                                self.V_gr.append(temp)
+                            if y == 5:
+                                temp = []
+                                temp.append(info[0])
+                                temp.append(info[1])
+                                temp.append(info[y])
+                                self.F_gr.append(temp)
+                            if y == 6:
+                                temp = []
+                                temp.append(info[0])
+                                temp.append(info[1])
+                                temp.append(info[y])
+                                self.T_gr.append(temp)
+                            temp_item = QtWidgets.QTableWidgetItem(info[y])
+                            temp_item.setFlags(
+                                QtCore.Qt.ItemIsSelectable | QtCore.Qt.ItemIsEnabled
+                            )
+                            self.inhTable.setItem(temp_row-1, y, temp_item)
+                        temp_item = QtWidgets.QTableWidgetItem(i)
+                        temp_item.setFlags(
+                            QtCore.Qt.ItemIsSelectable | QtCore.Qt.ItemIsEnabled
+                        )
+                        self.inhTable.setItem(temp_row-1, 7, temp_item)
                     else:
                         for y in range(0,8):
-                            self.inhTable.setItem(temp_row-1, y, QtWidgets.QTableWidgetItem('---'))
+                            temp_item = QtWidgets.QTableWidgetItem('---')
+                            temp_item.setFlags(
+                                QtCore.Qt.ItemIsSelectable | QtCore.Qt.ItemIsEnabled
+                            )
+                            self.inhTable.setItem(temp_row-1, y, temp_item)
                     temp_row += 1
         self.graphic.id_patient_w.setText(self.id_w.text())
         temp_string = ""
@@ -110,10 +157,68 @@ class MainWindow(Heliocs.Ui_MainWindow, QtWidgets.QMainWindow):
         if self.surname_w.text() != '---':
             temp_string = temp_string + self.surname_w.text() + ' '
         self.graphic.Patientl_w.setText(temp_string)
+        self.graphic.FiO2.toggled.connect(self.FiO2)
+        self.graphic.V.toggled.connect(self.V)
+        self.graphic.F.toggled.connect(self.F)
+        self.graphic.T.toggled.connect(self.T)
 
     def inhGraph(self):
+        self.graphic.FiO2.hide()
+        self.graphic.V.hide()
+        self.graphic.F.hide()
+        self.graphic.T.hide()
+        self.graphic.FiO2_l.hide()
+        self.graphic.V_l.hide()
+        self.graphic.F_l.hide()
+        self.graphic.T_l.hide()
         self.graphic.graph.setBackground('w')
+        self.graphic.pechat_grafikov_dihatelnogo_obiema.show()
+        self.graphic.formLayout.setWidget(-1, QtWidgets.QFormLayout.LabelRole, self.graphic.FiO2)
+        self.graphic.formLayout.setWidget(-1, QtWidgets.QFormLayout.FieldRole, self.graphic.FiO2_l)
+        self.graphic.formLayout.setWidget(-1, QtWidgets.QFormLayout.LabelRole, self.graphic.V)
+        self.graphic.formLayout.setWidget(-1, QtWidgets.QFormLayout.FieldRole, self.graphic.V_l)
+        self.graphic.formLayout.setWidget(-1, QtWidgets.QFormLayout.LabelRole, self.graphic.F)
+        self.graphic.formLayout.setWidget(-1, QtWidgets.QFormLayout.FieldRole, self.graphic.F_l)
+        self.graphic.formLayout.setWidget(-1, QtWidgets.QFormLayout.LabelRole, self.graphic.T)
+        self.graphic.formLayout.setWidget(-1, QtWidgets.QFormLayout.FieldRole, self.graphic.T_l)
+        self.graphic.formLayout.setWidget(0, QtWidgets.QFormLayout.LabelRole, self.graphic.Davlenie_v_maske)
+        self.graphic.formLayout.setWidget(1, QtWidgets.QFormLayout.LabelRole, self.graphic.koncetracia_O2)
+        self.graphic.formLayout.setWidget(2, QtWidgets.QFormLayout.LabelRole, self.graphic.temperatura_vdihaemoi_smesi)
+        self.graphic.formLayout.setWidget(3, QtWidgets.QFormLayout.LabelRole, self.graphic.obiem)
+        self.graphic.formLayout.setWidget(4, QtWidgets.QFormLayout.LabelRole, self.graphic.chastota_dihaniya)
+        self.graphic.formLayout.setWidget(5, QtWidgets.QFormLayout.LabelRole, self.graphic.potok)
+        self.graphic.formLayout.setWidget(6, QtWidgets.QFormLayout.LabelRole, self.graphic.minutni_obiem)
+        self.graphic.formLayout.setWidget(7, QtWidgets.QFormLayout.LabelRole, self.graphic.SpO2)
+        self.graphic.formLayout.setWidget(8, QtWidgets.QFormLayout.LabelRole, self.graphic.pulse)
+        self.graphic.formLayout.setWidget(0, QtWidgets.QFormLayout.FieldRole, self.graphic.label)
+        self.graphic.formLayout.setWidget(1, QtWidgets.QFormLayout.FieldRole, self.graphic.label_2)
+        self.graphic.formLayout.setWidget(2, QtWidgets.QFormLayout.FieldRole, self.graphic.label_3)
+        self.graphic.formLayout.setWidget(3, QtWidgets.QFormLayout.FieldRole, self.graphic.label_4)
+        self.graphic.formLayout.setWidget(4, QtWidgets.QFormLayout.FieldRole, self.graphic.label_5)
+        self.graphic.formLayout.setWidget(5, QtWidgets.QFormLayout.FieldRole, self.graphic.label_6)
+        self.graphic.formLayout.setWidget(6, QtWidgets.QFormLayout.FieldRole, self.graphic.label_7)
+        self.graphic.formLayout.setWidget(7, QtWidgets.QFormLayout.FieldRole, self.graphic.label_8)
+        self.graphic.formLayout.setWidget(8, QtWidgets.QFormLayout.FieldRole, self.graphic.label_9)
+        self.graphic.Davlenie_v_maske.show()
+        self.graphic.koncetracia_O2.show()
+        self.graphic.temperatura_vdihaemoi_smesi.show()
+        self.graphic.obiem.show()
+        self.graphic.chastota_dihaniya.show()
+        self.graphic.potok.show()
+        self.graphic.minutni_obiem.show()
+        self.graphic.SpO2.show()
+        self.graphic.pulse.show()
+        self.graphic.label.show()
+        self.graphic.label_2.show()
+        self.graphic.label_3.show()
+        self.graphic.label_4.show()
+        self.graphic.label_5.show()
+        self.graphic.label_6.show()
+        self.graphic.label_7.show()
+        self.graphic.label_8.show()
+        self.graphic.label_9.show()
         self.graphic.show()
+
 
 
 
@@ -258,6 +363,31 @@ class MainWindow(Heliocs.Ui_MainWindow, QtWidgets.QMainWindow):
         else:
             self.pulse_gr.setData([], [], pen=pyqtgraph.mkPen())
 
+    def FiO2(self):
+        if self.graphic.FiO2.isChecked():
+            pen = pyqtgraph.mkPen(color=(255,0,0), width=1, style=QtCore.Qt.SolidLine)
+            FiO2_gr = [[[int(i) for i in y[0].split('.')[::-1]], [int(i) for i in y[1].split(':')], int(y[2])] for y in self.FiO2_gr]
+            FiO2_gr = [i[0] + i[1] + [i[2]] for i in FiO2_gr]
+            FiO2_gr.sort()
+            FiO2_gr_2 = [[FiO2_gr[i][5] for i in range(0,len(FiO2_gr))], [i for i in range(0,len(FiO2_gr))]]
+            self.FiO2_sr_gr.setData(FiO2_gr_2[1], FiO2_gr_2[0], pen=pen)
+            print(FiO2_gr)
+
+            print(FiO2_gr)
+
+        else:
+            self.pulse_gr.setData([], [], pen=pyqtgraph.mkPen())
+            print(123)
+
+    def V(self):
+        pass
+
+    def F(self):
+        pass
+
+    def T(self):
+        pass
+
     def printActive(self):
         pdf = FPDF(orientation='P', unit='mm', format='A4')
         pdf.add_page()
@@ -307,12 +437,15 @@ class MainWindow(Heliocs.Ui_MainWindow, QtWidgets.QMainWindow):
 
         now = datetime.now()  # Высчитывание возраста
         temp = self.birhday_w.text().split('.')
-        temp = [int(i) for i in temp]
-        year = now.year - temp[2] - 1
-        if now.month > temp[1]:
-            year += 1
-        elif now.month == temp[1] and now.day >= temp[0]:
-            year += 1
+        if not temp == '---':
+            temp = [int(i) for i in temp]
+            year = now.year - temp[2] - 1
+            if now.month > temp[1]:
+                year += 1
+            elif now.month == temp[1] and now.day >= temp[0]:
+                year += 1
+        else:
+            year = '---'
 
         pdf.cell(150, 10, txt='Возраст: {}                    '
                               'Вес: {}                    '
@@ -344,6 +477,114 @@ class MainWindow(Heliocs.Ui_MainWindow, QtWidgets.QMainWindow):
     def save_graph(self):
         exporter = ImageExporter(self.graphic.graph.getPlotItem())
         exporter.export(QFileDialog.getSaveFileName(self, 'Сохранить график', r'C:\Users\Comp2\Desktop\График.png')[0])
+
+    def spisokInh(self):
+        pdf = FPDF(orientation='P', unit='mm', format='A4')
+        pdf.add_page()
+        pdf.add_font('DejaVuSansBold', '', 'DejaVuSans-Bold.ttf', uni=True)
+        pdf.add_font('DejaVuSans', '', 'DejaVuSans.ttf', uni=True)
+        pdf.set_font('DejaVuSansBold', '', 20)
+        pdf.cell(190, 20, txt='Аппарат ГелиОкс', align='C', ln=1)
+        pdf.set_font('DejaVuSans', '', 12)
+        pdf.cell(150, 10, txt='ID пациента:{}'.format(self.graphic.id_patient_w.text()), ln=1)
+        pdf.cell(150, 10, txt='ФИО пациента:{}'.format(self.graphic.Patientl_w.text()), ln=1)
+
+        now = datetime.now()  # Высчитывание возраста
+        temp = self.birhday_w.text().split('.')
+        if not temp == ['---']:
+            temp = [int(i) for i in temp]
+            year = now.year - temp[2] - 1
+            if now.month > temp[1]:
+                year += 1
+            elif now.month == temp[1] and now.day >= temp[0]:
+                year += 1
+        else:
+            year = '---'
+
+        pdf.cell(150, 10, txt='Возраст: {}                    '
+                              'Вес: {}                    '
+                              'Рост: {}'.format(year, self.weight_w.text(), self.heigh_w.text()), ln=1)
+        pdf.multi_cell(150, 10, txt='Комментарий: {}'.format(self.commText.toPlainText()))
+        if not os.path.exists('\\Heliox_temp'):
+            os.mkdir('\\Heliox_temp')
+        pdf.set_font('DejaVuSansBold', '', 15)
+        pdf.cell(150, 10, txt='Список ингаляций:', ln=1)
+        pdf.set_font('DejaVuSans', '', 11)
+
+        col_width = pdf.w / 7.5
+        row_height = pdf.font_size
+        spacing = 3
+        temp_arr = ['Дата', 'Время', 'Длит,мин', 'FiO2 сред,%','V сред,мл','F сред,1/мин','T сред,град']
+        for x in temp_arr:
+            pdf.cell(col_width, row_height * spacing,
+                     txt=x, border=1)
+        pdf.ln(row_height * spacing)
+        for y in range(0, self.inhTable.rowCount()):
+            for x in range(0, self.inhTable.columnCount()-1):
+                pdf.cell(col_width, row_height * spacing,
+                         txt=self.inhTable.item(y,x).text(), border=1)
+            pdf.ln(row_height * spacing)
+        pdf.output('\\Heliox_temp\\temp_pdf3.pdf', 'F')
+        os.system('\\Heliox_temp\\temp_pdf3.pdf')
+
+    def othergraphic(self):
+        self.graphic.Davlenie_v_maske.hide()
+        self.graphic.koncetracia_O2.hide()
+        self.graphic.temperatura_vdihaemoi_smesi.hide()
+        self.graphic.obiem.hide()
+        self.graphic.chastota_dihaniya.hide()
+        self.graphic.potok.hide()
+        self.graphic.minutni_obiem.hide()
+        self.graphic.SpO2.hide()
+        self.graphic.pulse.hide()
+        self.graphic.label.hide()
+        self.graphic.label_2.hide()
+        self.graphic.label_3.hide()
+        self.graphic.label_4.hide()
+        self.graphic.label_5.hide()
+        self.graphic.label_6.hide()
+        self.graphic.label_7.hide()
+        self.graphic.label_8.hide()
+        self.graphic.label_9.hide()
+        self.graphic.pechat_grafikov_dihatelnogo_obiema.hide()
+        self.graphic.formLayout.setWidget(-1, QtWidgets.QFormLayout.FieldRole, self.graphic.Davlenie_v_maske)
+        self.graphic.formLayout.setWidget(-1, QtWidgets.QFormLayout.FieldRole, self.graphic.koncetracia_O2)
+        self.graphic.formLayout.setWidget(-1, QtWidgets.QFormLayout.FieldRole, self.graphic.temperatura_vdihaemoi_smesi)
+        self.graphic.formLayout.setWidget(-1, QtWidgets.QFormLayout.FieldRole, self.graphic.obiem)
+        self.graphic.formLayout.setWidget(-1, QtWidgets.QFormLayout.FieldRole, self.graphic.chastota_dihaniya)
+        self.graphic.formLayout.setWidget(-1, QtWidgets.QFormLayout.FieldRole, self.graphic.potok)
+        self.graphic.formLayout.setWidget(-1, QtWidgets.QFormLayout.FieldRole, self.graphic.minutni_obiem)
+        self.graphic.formLayout.setWidget(-1, QtWidgets.QFormLayout.FieldRole, self.graphic.SpO2)
+        self.graphic.formLayout.setWidget(-1, QtWidgets.QFormLayout.FieldRole, self.graphic.pulse)
+        self.graphic.formLayout.setWidget(-1, QtWidgets.QFormLayout.FieldRole, self.graphic.label)
+        self.graphic.formLayout.setWidget(-1, QtWidgets.QFormLayout.FieldRole, self.graphic.label_2)
+        self.graphic.formLayout.setWidget(-1, QtWidgets.QFormLayout.FieldRole, self.graphic.label_3)
+        self.graphic.formLayout.setWidget(-1, QtWidgets.QFormLayout.FieldRole, self.graphic.label_4)
+        self.graphic.formLayout.setWidget(-1, QtWidgets.QFormLayout.FieldRole, self.graphic.label_5)
+        self.graphic.formLayout.setWidget(-1, QtWidgets.QFormLayout.FieldRole, self.graphic.label_6)
+        self.graphic.formLayout.setWidget(-1, QtWidgets.QFormLayout.FieldRole, self.graphic.label_7)
+        self.graphic.formLayout.setWidget(-1, QtWidgets.QFormLayout.FieldRole, self.graphic.label_8)
+        self.graphic.formLayout.setWidget(-1, QtWidgets.QFormLayout.FieldRole, self.graphic.label_9)
+        self.graphic.formLayout.setWidget(0, QtWidgets.QFormLayout.LabelRole, self.graphic.FiO2)
+        self.graphic.formLayout.setWidget(0, QtWidgets.QFormLayout.FieldRole, self.graphic.FiO2_l)
+        self.graphic.formLayout.setWidget(1, QtWidgets.QFormLayout.LabelRole, self.graphic.V)
+        self.graphic.formLayout.setWidget(1, QtWidgets.QFormLayout.FieldRole, self.graphic.V_l)
+        self.graphic.formLayout.setWidget(2, QtWidgets.QFormLayout.LabelRole, self.graphic.F)
+        self.graphic.formLayout.setWidget(2, QtWidgets.QFormLayout.FieldRole, self.graphic.F_l)
+        self.graphic.formLayout.setWidget(3, QtWidgets.QFormLayout.LabelRole, self.graphic.T)
+        self.graphic.formLayout.setWidget(3, QtWidgets.QFormLayout.FieldRole, self.graphic.T_l)
+        self.graphic.FiO2.show()
+        self.graphic.V.show()
+        self.graphic.F.show()
+        self.graphic.T.show()
+        self.graphic.FiO2_l.show()
+        self.graphic.V_l.show()
+        self.graphic.F_l.show()
+        self.graphic.T_l.show()
+        self.graphic.show()
+
+
+
 
 
 
