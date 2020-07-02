@@ -3,9 +3,7 @@ import sys
 
 import pyqtgraph
 from PyQt5 import QtWidgets, QtCore
-from PyQt5.QtGui import QColor, QPixmap
-from PyQt5.QtPrintSupport import QPrinter
-from PyQt5.QtWidgets import QApplication, QFileDialog, QMainWindow, QTextEdit
+from PyQt5.QtWidgets import QApplication, QFileDialog
 from fpdf import FPDF
 from datetime import datetime
 from pyqtgraph.exporters import ImageExporter
@@ -21,20 +19,23 @@ class MainWindow(Heliocs.Ui_MainWindow, QtWidgets.QMainWindow):
         super(MainWindow, self).__init__()
         self.graphic = график.Ui_Form()
         self.setupUi(self)
-        self.davl_gr = self.graphic.graph.plot([],[])
-        self.konc_gr = self.graphic.graph.plot([],[])
-        self.temp_gr = self.graphic.graph.plot([],[])
-        self.obiem_gr = self.graphic.graph.plot([],[])
-        self.chastota_gr = self.graphic.graph.plot([],[])
-        self.potok_gr = self.graphic.graph.plot([],[])
-        self.minutni_gr = self.graphic.graph.plot([],[])
-        self.spo2_gr= self.graphic.graph.plot([],[])
-        self.pulse_gr = self.graphic.graph.plot([],[])
+        self.graphic.graph.addLegend(offset=[0,-300])
+        self.davl_gr = self.graphic.graph.plot([],[], name='Давление в маске (см.вод.ст.)')
+        self.konc_gr = self.graphic.graph.plot([],[], name='Концентрация O2 (%)')
+        self.temp_gr = self.graphic.graph.plot([],[], name='Температура вдыхаемой смеси (град.)')
+        self.obiem_gr = self.graphic.graph.plot([],[], name='Объём (мл)')
+        self.chastota_gr = self.graphic.graph.plot([],[], name='Частота дыхания (1/мин)')
+        self.potok_gr = self.graphic.graph.plot([],[], name='Поток (л/мин)')
+        self.minutni_gr = self.graphic.graph.plot([],[], name='Минутный объём (л/мин)')
+        self.spo2_gr= self.graphic.graph.plot([],[], name='SpO2 (%)')
+        self.pulse_gr = self.graphic.graph.plot([],[], name='Пульс (1/мин)')
         self.patientButton.clicked.connect(self.patientButtonClicked)
         self.inh_1.clicked.connect(self.inhGraph)
         self.inhTable.itemClicked.connect(self.tableClicked)
         self.graphic.pechat_aktivnih_grafikov.clicked.connect(self.printActive)
         self.graphic.pechat_grafikov_dihatelnogo_obiema.clicked.connect(self.printActive2)
+        self.graphic.save_button.clicked.connect(self.save_graph)
+
 
     def patientButtonClicked(self):
         self.file = str(QFileDialog.getExistingDirectory(self, 'Выбор папки...'))
@@ -197,64 +198,65 @@ class MainWindow(Heliocs.Ui_MainWindow, QtWidgets.QMainWindow):
         if self.graphic.Davlenie_v_maske.isChecked():
             pen = pyqtgraph.mkPen(color=(255,0,0), width=1, style=QtCore.Qt.SolidLine)
             self.davl_gr.setData(self.Davlenie_v_maske_g[0], self.Davlenie_v_maske_g[1], pen=pen)
+
         else:
-            self.davl_gr.setData([],[])
+            self.davl_gr.setData([], [], pen=pyqtgraph.mkPen())
 
     def Konc(self):
         if self.graphic.koncetracia_O2.isChecked():
             pen = pyqtgraph.mkPen(color=(0,255,0), width=1, style=QtCore.Qt.SolidLine)
             self.konc_gr.setData(self.koncetracia_O2_g[0], self.koncetracia_O2_g[1], pen=pen)
         else:
-            self.konc_gr.setData([],[])
+            self.konc_gr.setData([], [], pen=pyqtgraph.mkPen())
 
     def Temp(self):
         if self.graphic.temperatura_vdihaemoi_smesi.isChecked():
             pen = pyqtgraph.mkPen(color=(0,0,255), width=1, style=QtCore.Qt.SolidLine)
             self.temp_gr.setData(self.temperatura_vdihaemoi_smesi_g[0], self.temperatura_vdihaemoi_smesi_g[1], pen=pen)
         else:
-            self.temp_gr.setData([],[])
+            self.temp_gr.setData([], [], pen=pyqtgraph.mkPen())
 
     def Obiem(self):
         if self.graphic.obiem.isChecked():
             pen = pyqtgraph.mkPen(color=(100,30,100), width=1, style=QtCore.Qt.SolidLine)
             self.obiem_gr.setData(self.obiem_g[0], self.obiem_g[1], pen=pen)
         else:
-            self.obiem_gr.setData([],[])
+            self.obiem_gr.setData([], [], pen=pyqtgraph.mkPen())
 
     def Chastota(self):
         if self.graphic.chastota_dihaniya.isChecked():
             pen = pyqtgraph.mkPen(color=(0,255,255), width=1, style=QtCore.Qt.SolidLine)
             self.chastota_gr.setData(self.chastota_dihaniya_g[0], self.chastota_dihaniya_g[1], pen=pen)
         else:
-            self.chastota_gr.setData([],[])
+            self.chastota_gr.setData([], [], pen=pyqtgraph.mkPen())
 
     def Potok(self):
         if self.graphic.potok.isChecked():
             pen = pyqtgraph.mkPen(color=(255,0,255), width=1, style=QtCore.Qt.SolidLine)
             self.potok_gr.setData(self.potok_g[0], self.potok_g[1], pen=pen)
         else:
-            self.potok_gr.setData([],[])
+            self.potok_gr.setData([], [], pen=pyqtgraph.mkPen())
 
     def Minutni(self):
         if self.graphic.minutni_obiem.isChecked():
             pen = pyqtgraph.mkPen(color=(100,200,100), width=1, style=QtCore.Qt.SolidLine)
             self.minutni_gr.setData(self.minutni_obiem_g[0], self.minutni_obiem_g[1], pen=pen)
         else:
-            self.minutni_gr.setData([], [])
+            self.minutni_gr.setData([], [], pen=pyqtgraph.mkPen())
 
     def SpO2(self):
         if self.graphic.SpO2.isChecked():
             pen = pyqtgraph.mkPen(color=(100,50,100), width=1, style=QtCore.Qt.SolidLine)
             self.spo2_gr.setData(self.SpO2_g[0], self.SpO2_g[1], pen=pen)
         else:
-            self.spo2_gr.setData([], [])
+            self.spo2_gr.setData([], [], pen=pyqtgraph.mkPen())
 
     def Pulse(self):
         if self.graphic.pulse.isChecked():
             pen = pyqtgraph.mkPen(color=(0,100,0), width=1, style=QtCore.Qt.SolidLine)
             self.pulse_gr.setData(self.pulse_g[0], self.pulse_g[1], pen=pen)
         else:
-            self.pulse_gr.setData([], [])
+            self.pulse_gr.setData([], [], pen=pyqtgraph.mkPen())
 
     def printActive(self):
         pdf = FPDF(orientation='P', unit='mm', format='A4')
@@ -327,11 +329,21 @@ class MainWindow(Heliocs.Ui_MainWindow, QtWidgets.QMainWindow):
         if not os.path.exists('\\Heliox_temp'):
             os.mkdir('\\Heliox_temp')
         pen1 = pyqtgraph.mkPen(color=(100,30,100), width=1, style=QtCore.Qt.SolidLine)
-        exporter = ImageExporter(pyqtgraph.plot([[self.obiem_g[0], self.obiem_g[1]], [self.chastota_dihaniya_g[0], self.chastota_dihaniya_g[1]]]))
+        pen2 = pyqtgraph.mkPen(color=(0, 255, 255), width=1, style=QtCore.Qt.SolidLine)
+        view_graph = pyqtgraph.PlotWidget()
+        view_graph.setBackground('w')
+        view_graph.addLegend(offset=[400,-370])
+        temp_obiem = view_graph.plot(self.obiem_g[0], self.obiem_g[1], pen=pen1, name='Объём (мл)')
+        temp_chastota = view_graph.plot(self.chastota_dihaniya_g[0], self.chastota_dihaniya_g[1], pen=pen2, name='Частота дыхания (1/мин)')
+        exporter = ImageExporter(view_graph.getPlotItem())
         exporter.export('\\Heliox_temp\\temp_image2.png')
         pdf.image('\\Heliox_temp\\temp_image2.png', w=180, h=110)
         pdf.output('\\Heliox_temp\\temp_pdf2.pdf', 'F')
         os.system('\\Heliox_temp\\temp_pdf2.pdf')
+
+    def save_graph(self):
+        exporter = ImageExporter(self.graphic.graph.getPlotItem())
+        exporter.export(QFileDialog.getSaveFileName(self, 'Сохранить график', r'C:\Users\Comp2\Desktop\График.png')[0])
 
 
 
