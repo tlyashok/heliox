@@ -7,6 +7,7 @@ from PyQt5.QtWidgets import QApplication, QFileDialog, QTableWidgetItem
 from fpdf import FPDF
 from datetime import datetime
 from pyqtgraph.exporters import ImageExporter
+from pyqtgraph.graphicsItems.ScatterPlotItem import tr
 
 import Heliocs
 import график
@@ -105,26 +106,26 @@ class MainWindow(Heliocs.Ui_MainWindow, QtWidgets.QMainWindow):
                         info = list(info.split(';'))
                         info = info[2:9]
                         for y in range(0,7):
-                            if y == 3:
+                            if y == 3 and info[3] != '---':
                                 temp = []
                                 temp.append(info[0])
                                 temp.append(info[1])
                                 temp.append(info[y])
                                 self.FiO2_gr.append(temp)
 
-                            if y == 4:
+                            if y == 4 and info[4] != '---':
                                 temp = []
                                 temp.append(info[0])
                                 temp.append(info[1])
                                 temp.append(info[y])
                                 self.V_gr.append(temp)
-                            if y == 5:
+                            if y == 5 and info[5] != '---':
                                 temp = []
                                 temp.append(info[0])
                                 temp.append(info[1])
                                 temp.append(info[y])
                                 self.F_gr.append(temp)
-                            if y == 6:
+                            if y == 6 and info[6] != '---':
                                 temp = []
                                 temp.append(info[0])
                                 temp.append(info[1])
@@ -163,6 +164,14 @@ class MainWindow(Heliocs.Ui_MainWindow, QtWidgets.QMainWindow):
         self.graphic.T.toggled.connect(self.T)
 
     def inhGraph(self):
+        self.graphic.FiO2.setChecked(False)
+        self.graphic.F.setChecked(False)
+        self.graphic.V.setChecked(False)
+        self.graphic.T.setChecked(False)
+        self.FiO2()
+        self.F()
+        self.V()
+        self.T()
         self.graphic.FiO2.hide()
         self.graphic.V.hide()
         self.graphic.F.hide()
@@ -363,6 +372,7 @@ class MainWindow(Heliocs.Ui_MainWindow, QtWidgets.QMainWindow):
         else:
             self.pulse_gr.setData([], [], pen=pyqtgraph.mkPen())
 
+
     def FiO2(self):
         if self.graphic.FiO2.isChecked():
             pen = pyqtgraph.mkPen(color=(255,0,0), width=1, style=QtCore.Qt.SolidLine)
@@ -371,22 +381,44 @@ class MainWindow(Heliocs.Ui_MainWindow, QtWidgets.QMainWindow):
             FiO2_gr.sort()
             FiO2_gr_2 = [[FiO2_gr[i][5] for i in range(0,len(FiO2_gr))], [i for i in range(0,len(FiO2_gr))]]
             self.FiO2_sr_gr.setData(FiO2_gr_2[1], FiO2_gr_2[0], pen=pen)
-            print(FiO2_gr)
-
-            print(FiO2_gr)
-
         else:
-            self.pulse_gr.setData([], [], pen=pyqtgraph.mkPen())
-            print(123)
+            self.FiO2_sr_gr.setData([], [], pen=pyqtgraph.mkPen())
 
     def V(self):
-        pass
+        if self.graphic.V.isChecked():
+            pen = pyqtgraph.mkPen(color=(0,255,0), width=1, style=QtCore.Qt.SolidLine)
+            V_gr = [[[int(i) for i in y[0].split('.')[::-1]], [int(i) for i in y[1].split(':')], int(y[2])] for y in
+                       self.V_gr]
+            V_gr = [i[0] + i[1] + [i[2]] for i in V_gr]
+            V_gr.sort()
+            V_gr_2 = [[V_gr[i][5] for i in range(0, len(V_gr))], [i for i in range(0, len(V_gr))]]
+            self.V_sr_gr.setData(V_gr_2[1], V_gr_2[0], pen=pen)
+        else:
+            self.V_sr_gr.setData([], [], pen=pyqtgraph.mkPen())
 
     def F(self):
-        pass
+        if self.graphic.F.isChecked():
+            pen = pyqtgraph.mkPen(color=(0,0,255), width=1, style=QtCore.Qt.SolidLine)
+            F_gr = [[[int(i) for i in y[0].split('.')[::-1]], [int(i) for i in y[1].split(':')], int(y[2])] for y in
+                       self.F_gr]
+            F_gr = [i[0] + i[1] + [i[2]] for i in F_gr]
+            F_gr.sort()
+            F_gr_2 = [[F_gr[i][5] for i in range(0, len(F_gr))], [i for i in range(0, len(F_gr))]]
+            self.F_sr_gr.setData(F_gr_2[1], F_gr_2[0], pen=pen)
+        else:
+            self.F_sr_gr.setData([], [], pen=pyqtgraph.mkPen())
 
     def T(self):
-        pass
+        if self.graphic.T.isChecked():
+            pen = pyqtgraph.mkPen(color=(100,30,100), width=1, style=QtCore.Qt.SolidLine)
+            T_gr = [[[int(i) for i in y[0].split('.')[::-1]], [int(i) for i in y[1].split(':')], int(y[2])] for y in
+                    self.T_gr]
+            T_gr = [i[0] + i[1] + [i[2]] for i in T_gr]
+            T_gr.sort()
+            T_gr_2 = [[T_gr[i][5] for i in range(0, len(T_gr))], [i for i in range(0, len(T_gr))]]
+            self.T_sr_gr.setData(T_gr_2[1], T_gr_2[0], pen=pen)
+        else:
+            self.T_sr_gr.setData([], [], pen=pyqtgraph.mkPen())
 
     def printActive(self):
         pdf = FPDF(orientation='P', unit='mm', format='A4')
@@ -412,10 +444,11 @@ class MainWindow(Heliocs.Ui_MainWindow, QtWidgets.QMainWindow):
                               'Вес: {}                    '
                               'Рост: {}'.format(year, self.weight_w.text(), self.heigh_w.text()), ln = 1)
         pdf.multi_cell(150, 10, txt='Комментарий: {}'.format(self.commText.toPlainText()))
-        pdf.cell(150, 10, txt='Средняя концетрация O2, %: {}'.format(self.inhTable.item(self.inhTable.currentRow(), 3).text()), ln=1)
-        pdf.cell(150, 10, txt='Средняя температура, град. C: {}'.format(self.inhTable.item(self.inhTable.currentRow(), 6).text()), ln=1)
-        pdf.cell(150, 10, txt='Дата проведения ингаляции: {}'.format(self.inhTable.item(self.inhTable.currentRow(), 0).text() + " " +
-                                                                     self.inhTable.item(self.inhTable.currentRow(), 1).text()), ln=1)
+        if self.inhTable.currentRow() != -1:
+            pdf.cell(150, 10, txt='Средняя концетрация O2, %: {}'.format(self.inhTable.item(self.inhTable.currentRow(), 3).text()), ln=1)
+            pdf.cell(150, 10, txt='Средняя температура, град. C: {}'.format(self.inhTable.item(self.inhTable.currentRow(), 6).text()), ln=1)
+            pdf.cell(150, 10, txt='Дата проведения ингаляции: {}'.format(self.inhTable.item(self.inhTable.currentRow(), 0).text() + " " +
+                                                                         self.inhTable.item(self.inhTable.currentRow(), 1).text()), ln=1)
         if not os.path.exists('\\Heliox_temp'):
             os.mkdir('\\Heliox_temp')
         exporter = ImageExporter(self.graphic.graph.getPlotItem())
@@ -451,14 +484,14 @@ class MainWindow(Heliocs.Ui_MainWindow, QtWidgets.QMainWindow):
                               'Вес: {}                    '
                               'Рост: {}'.format(year, self.weight_w.text(), self.heigh_w.text()), ln=1)
         pdf.multi_cell(150, 10, txt='Комментарий: {}'.format(self.commText.toPlainText()))
-        pdf.cell(150, 10,
-                 txt='Средняя концетрация O2, %: {}'.format(self.inhTable.item(self.inhTable.currentRow(), 3).text()),
-                 ln=1)
-        pdf.cell(150, 10, txt='Средняя температура, град. C: {}'.format(
-            self.inhTable.item(self.inhTable.currentRow(), 6).text()), ln=1)
-        pdf.cell(150, 10, txt='Дата проведения ингаляции: {}'.format(
-            self.inhTable.item(self.inhTable.currentRow(), 0).text() + " " +
-            self.inhTable.item(self.inhTable.currentRow(), 1).text()), ln=1)
+        if self.inhTable.currentRow() != -1:
+            pdf.cell(150, 10, txt='Средняя концетрация O2, %: {}'.format(
+                self.inhTable.item(self.inhTable.currentRow(), 3).text()), ln=1)
+            pdf.cell(150, 10, txt='Средняя температура, град. C: {}'.format(
+                self.inhTable.item(self.inhTable.currentRow(), 6).text()), ln=1)
+            pdf.cell(150, 10, txt='Дата проведения ингаляции: {}'.format(
+                self.inhTable.item(self.inhTable.currentRow(), 0).text() + " " +
+                self.inhTable.item(self.inhTable.currentRow(), 1).text()), ln=1)
         if not os.path.exists('\\Heliox_temp'):
             os.mkdir('\\Heliox_temp')
         pen1 = pyqtgraph.mkPen(color=(100,30,100), width=1, style=QtCore.Qt.SolidLine)
@@ -476,7 +509,7 @@ class MainWindow(Heliocs.Ui_MainWindow, QtWidgets.QMainWindow):
 
     def save_graph(self):
         exporter = ImageExporter(self.graphic.graph.getPlotItem())
-        exporter.export(QFileDialog.getSaveFileName(self, 'Сохранить график', r'C:\Users\Comp2\Desktop\График.png')[0])
+        exporter.export(QFileDialog.getSaveFileName(self, 'Сохранить график', r'C:\Users\Comp2\Desktop\График.png', filter="Images (*.png)")[0])
 
     def spisokInh(self):
         pdf = FPDF(orientation='P', unit='mm', format='A4')
@@ -528,6 +561,25 @@ class MainWindow(Heliocs.Ui_MainWindow, QtWidgets.QMainWindow):
         os.system('\\Heliox_temp\\temp_pdf3.pdf')
 
     def othergraphic(self):
+        self.graphic.graph.setBackground('w')
+        self.graphic.Davlenie_v_maske.setChecked(False)
+        self.graphic.koncetracia_O2.setChecked(False)
+        self.graphic.temperatura_vdihaemoi_smesi.setChecked(False)
+        self.graphic.obiem.setChecked(False)
+        self.graphic.chastota_dihaniya.setChecked(False)
+        self.graphic.potok.setChecked(False)
+        self.graphic.minutni_obiem.setChecked(False)
+        self.graphic.SpO2.setChecked(False)
+        self.graphic.pulse.setChecked(False)
+        self.Davl()
+        self.Konc()
+        self.Temp()
+        self.Obiem()
+        self.Chastota()
+        self.Potok()
+        self.Minutni()
+        self.SpO2()
+        self.Pulse()
         self.graphic.Davlenie_v_maske.hide()
         self.graphic.koncetracia_O2.hide()
         self.graphic.temperatura_vdihaemoi_smesi.hide()
