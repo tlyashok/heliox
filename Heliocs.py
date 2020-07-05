@@ -8,6 +8,7 @@
 
 
 from PyQt5 import QtCore, QtGui, QtWidgets
+from PyQt5.QtWidgets import QHeaderView
 
 
 class Ui_MainWindow(object):
@@ -244,8 +245,8 @@ class Ui_MainWindow(object):
         self.inhTable.setObjectName("inhTable")
         self.inhTable.setColumnCount(8)
         self.inhTable.setHorizontalHeaderLabels(["Дата","Время","Длит, мин", "FiO2 сред, %", "V сред, мл", "F сред, 1/мин", "T сред, град", "Имя файла"])
-        self.inhTable.horizontalHeader().setMinimumSectionSize(70)
-        self.inhTable.resizeColumnsToContents()
+        self.inhTable.horizontalHeader().setResizeMode(QHeaderView.Stretch)
+        self.inhTable.horizontalHeader().setMinimumSectionSize(110)
 
 
         self.verticalLayout_7.addWidget(self.inhTable)

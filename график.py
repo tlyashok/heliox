@@ -7,6 +7,7 @@
 # WARNING! All changes made in this file will be lost!
 import pyqtgraph
 from PyQt5 import QtCore, QtGui, QtWidgets
+from PyQt5.QtWidgets import QSizePolicy
 from pyqtgraph import PlotWidget
 
 
@@ -487,6 +488,10 @@ class Ui_Form(QtWidgets.QWidget):
         self.V_l.hide()
         self.F_l.hide()
         self.T_l.hide()
+
+        self.spisokDat = QtWidgets.QTableWidget()
+        self.formLayout.setWidget(13, QtWidgets.QFormLayout.SpanningRole, self.spisokDat)
+        self.spisokDat.hide()
 
         self.retranslateUi(Form)
         QtCore.QMetaObject.connectSlotsByName(Form)

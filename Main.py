@@ -3,7 +3,8 @@ import sys
 
 import pyqtgraph
 from PyQt5 import QtWidgets, QtCore
-from PyQt5.QtWidgets import QApplication, QFileDialog, QTableWidgetItem
+from PyQt5.QtGui import QFont
+from PyQt5.QtWidgets import QApplication, QFileDialog, QTableWidgetItem, QSizePolicy, QHeaderView
 from fpdf import FPDF
 from datetime import datetime
 from pyqtgraph.exporters import ImageExporter
@@ -149,6 +150,7 @@ class MainWindow(Heliocs.Ui_MainWindow, QtWidgets.QMainWindow):
                             )
                             self.inhTable.setItem(temp_row-1, y, temp_item)
                     temp_row += 1
+        self.inhTable.horizontalHeader().setResizeMode(7, QHeaderView.ResizeToContents)
         self.graphic.id_patient_w.setText(self.id_w.text())
         temp_string = ""
         if self.patronymic_w.text() != '---':
@@ -158,6 +160,27 @@ class MainWindow(Heliocs.Ui_MainWindow, QtWidgets.QMainWindow):
         if self.surname_w.text() != '---':
             temp_string = temp_string + self.surname_w.text() + ' '
         self.graphic.Patientl_w.setText(temp_string)
+        self.FiO2()
+        self.F()
+        self.V()
+        self.T()
+        self.graphic.spisokDat.clear()
+        self.graphic.spisokDat.setColumnCount(2)
+        self.graphic.spisokDat.setRowCount(self.inhTable.rowCount())
+        self.graphic.spisokDat.setHorizontalHeaderLabels(['Дата', 'Время'])
+        for i in range(0, self.inhTable.rowCount()):
+            temp_item = QtWidgets.QTableWidgetItem(self.inhTable.item(i, 0).text())
+            temp_item.setFlags(
+                QtCore.Qt.ItemIsSelectable | QtCore.Qt.ItemIsEnabled
+            )
+            self.graphic.spisokDat.setItem(i, 0, temp_item)
+            temp_item2 = QtWidgets.QTableWidgetItem(self.inhTable.item(i, 1).text())
+            temp_item2.setFlags(
+                QtCore.Qt.ItemIsSelectable | QtCore.Qt.ItemIsEnabled
+            )
+            self.graphic.spisokDat.setItem(i, 1, temp_item2)
+        self.graphic.spisokDat.horizontalHeader().setResizeMode(QHeaderView.Stretch)
+        self.graphic.spisokDat.resizeColumnsToContents()
         self.graphic.FiO2.toggled.connect(self.FiO2)
         self.graphic.V.toggled.connect(self.V)
         self.graphic.F.toggled.connect(self.F)
@@ -172,6 +195,7 @@ class MainWindow(Heliocs.Ui_MainWindow, QtWidgets.QMainWindow):
         self.F()
         self.V()
         self.T()
+        self.graphic.spisokDat.hide()
         self.graphic.FiO2.hide()
         self.graphic.V.hide()
         self.graphic.F.hide()
@@ -379,7 +403,7 @@ class MainWindow(Heliocs.Ui_MainWindow, QtWidgets.QMainWindow):
             FiO2_gr = [[[int(i) for i in y[0].split('.')[::-1]], [int(i) for i in y[1].split(':')], int(y[2])] for y in self.FiO2_gr]
             FiO2_gr = [i[0] + i[1] + [i[2]] for i in FiO2_gr]
             FiO2_gr.sort()
-            FiO2_gr_2 = [[FiO2_gr[i][5] for i in range(0,len(FiO2_gr))], [i for i in range(0,len(FiO2_gr))]]
+            FiO2_gr_2 = [[FiO2_gr[i][5] for i in range(0,len(FiO2_gr))], [i+1 for i in range(0,len(FiO2_gr))]]
             self.FiO2_sr_gr.setData(FiO2_gr_2[1], FiO2_gr_2[0], pen=pen)
         else:
             self.FiO2_sr_gr.setData([], [], pen=pyqtgraph.mkPen())
@@ -391,7 +415,7 @@ class MainWindow(Heliocs.Ui_MainWindow, QtWidgets.QMainWindow):
                        self.V_gr]
             V_gr = [i[0] + i[1] + [i[2]] for i in V_gr]
             V_gr.sort()
-            V_gr_2 = [[V_gr[i][5] for i in range(0, len(V_gr))], [i for i in range(0, len(V_gr))]]
+            V_gr_2 = [[V_gr[i][5] for i in range(0, len(V_gr))], [i+1 for i in range(0, len(V_gr))]]
             self.V_sr_gr.setData(V_gr_2[1], V_gr_2[0], pen=pen)
         else:
             self.V_sr_gr.setData([], [], pen=pyqtgraph.mkPen())
@@ -403,7 +427,7 @@ class MainWindow(Heliocs.Ui_MainWindow, QtWidgets.QMainWindow):
                        self.F_gr]
             F_gr = [i[0] + i[1] + [i[2]] for i in F_gr]
             F_gr.sort()
-            F_gr_2 = [[F_gr[i][5] for i in range(0, len(F_gr))], [i for i in range(0, len(F_gr))]]
+            F_gr_2 = [[F_gr[i][5] for i in range(0, len(F_gr))], [i+1 for i in range(0, len(F_gr))]]
             self.F_sr_gr.setData(F_gr_2[1], F_gr_2[0], pen=pen)
         else:
             self.F_sr_gr.setData([], [], pen=pyqtgraph.mkPen())
@@ -415,7 +439,7 @@ class MainWindow(Heliocs.Ui_MainWindow, QtWidgets.QMainWindow):
                     self.T_gr]
             T_gr = [i[0] + i[1] + [i[2]] for i in T_gr]
             T_gr.sort()
-            T_gr_2 = [[T_gr[i][5] for i in range(0, len(T_gr))], [i for i in range(0, len(T_gr))]]
+            T_gr_2 = [[T_gr[i][5] for i in range(0, len(T_gr))], [i+1 for i in range(0, len(T_gr))]]
             self.T_sr_gr.setData(T_gr_2[1], T_gr_2[0], pen=pen)
         else:
             self.T_sr_gr.setData([], [], pen=pyqtgraph.mkPen())
@@ -633,6 +657,7 @@ class MainWindow(Heliocs.Ui_MainWindow, QtWidgets.QMainWindow):
         self.graphic.V_l.show()
         self.graphic.F_l.show()
         self.graphic.T_l.show()
+        self.graphic.spisokDat.show()
         self.graphic.show()
 
 
@@ -642,6 +667,8 @@ class MainWindow(Heliocs.Ui_MainWindow, QtWidgets.QMainWindow):
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
+
+
     window = MainWindow()
     window.show()
     app.exec_()
