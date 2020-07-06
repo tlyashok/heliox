@@ -7,7 +7,8 @@
 # WARNING! All changes made in this file will be lost!
 import pyqtgraph
 from PyQt5 import QtCore, QtGui, QtWidgets
-from PyQt5.QtWidgets import QSizePolicy
+from PyQt5.QtGui import QFont
+from PyQt5.QtWidgets import QSizePolicy, QFormLayout
 from pyqtgraph import PlotWidget
 
 
@@ -488,6 +489,17 @@ class Ui_Form(QtWidgets.QWidget):
         self.V_l.hide()
         self.F_l.hide()
         self.T_l.hide()
+
+        font_button = QFont("Times", 9, QFont.Bold)
+        self.pechat_aktivnih_grafikov.setFont(font_button)
+        self.pechat_grafikov_dihatelnogo_obiema.setFont(font_button)
+        self.save_button.setFont(font_button)
+        self.spravka.setFont(font_button)
+
+        font_box = QFont("Times", 12)
+        self.groupBox.setFont(font_box)
+        self.Patient.setFont(font_box)
+
 
         self.spisokDat = QtWidgets.QTableWidget()
         self.formLayout.setWidget(13, QtWidgets.QFormLayout.SpanningRole, self.spisokDat)

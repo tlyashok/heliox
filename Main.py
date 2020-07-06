@@ -667,8 +667,16 @@ class MainWindow(Heliocs.Ui_MainWindow, QtWidgets.QMainWindow):
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
-
-
+    app.setStyleSheet('QPushButton {'
+                      'border-style: solid;'
+                      'border-width: 12px;'
+                      'border-radius: 12px;'
+                      ' background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,stop: 0 #E0FFFF, stop: 1 #1E90FF)}'
+                      'QPushButton:pressed {'
+                      'background-color: white;}'
+                      'QTableWidget{font: 20px, Bold;}'
+                      'QListWidget{font: 20px, Bold}'
+                      'QMainWindow, Ui_Form {background-color: qlineargradient(x1:0, y1:0, x2:1, y2:1, stop:0 white, stop: 0.4 #1E90FF, stop:1 #32CD32);}')
     window = MainWindow()
     window.show()
     app.exec_()
