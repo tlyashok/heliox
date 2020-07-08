@@ -12,14 +12,18 @@ from pyqtgraph.graphicsItems.ScatterPlotItem import tr
 
 import Heliocs
 import график
+import inhDetails
 
 class MainWindow(Heliocs.Ui_MainWindow, QtWidgets.QMainWindow):
     commonList= []
-    file = ""
+    file = ''
     graphic = ''
+    details = ''
     def __init__(self):
         super(MainWindow, self).__init__()
         self.graphic = график.Ui_Form()
+        self.details = inhDetails.Ui_Dialog()
+        self.details.hide()
         self.setupUi(self)
         self.graphic.graph.addLegend(offset=[0,-300])
         self.davl_gr = self.graphic.graph.plot([],[], name='Давление в маске (см.вод.ст.)')
@@ -43,6 +47,14 @@ class MainWindow(Heliocs.Ui_MainWindow, QtWidgets.QMainWindow):
         self.graphic.save_button.clicked.connect(self.save_graph)
         self.inh_3.clicked.connect(self.spisokInh)
         self.inh_2.clicked.connect(self.othergraphic)
+        self.inh_4.clicked.connect(self.inh_4_def)
+        self.details.Closer.clicked.connect(self.Closer_def)
+
+    def inh_4_def(self):
+        self.details.show()
+
+    def Closer_def(self):
+        self.details.hide()
 
 
     def patientButtonClicked(self):
