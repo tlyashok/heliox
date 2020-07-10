@@ -46,8 +46,8 @@ class Ui_Form(QtWidgets.QWidget):
         self.formLayout.setHorizontalSpacing(50)
         self.formLayout.setVerticalSpacing(20)
         self.formLayout.setObjectName("formLayout")
-        QtGui.QFontDatabase.addApplicationFont(os.getcwd() + '\\' + 'custom_font' + '\\' + 'Zamenhof Plain.otf')
-        font = QFont("Zamenhof Plain", 10)
+        QtGui.QFontDatabase.addApplicationFont(os.getcwd() + '\\' + 'custom_font' + '\\' + 'RussianSuvenir-Regular.otf')
+        font = QFont("RussianSuvenir-Regular", 11, QFont.Bold)
 
 
         sizePolicy_l = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)

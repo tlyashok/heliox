@@ -3,12 +3,10 @@ import sys
 
 import pyqtgraph
 from PyQt5 import QtWidgets, QtCore
-from PyQt5.QtGui import QFont
-from PyQt5.QtWidgets import QApplication, QFileDialog, QTableWidgetItem, QSizePolicy, QHeaderView
+from PyQt5.QtWidgets import QApplication, QFileDialog, QHeaderView
 from fpdf import FPDF
 from datetime import datetime
 from pyqtgraph.exporters import ImageExporter
-from pyqtgraph.graphicsItems.ScatterPlotItem import tr
 
 import Heliocs
 import график
@@ -50,6 +48,10 @@ class MainWindow(Heliocs.Ui_MainWindow, QtWidgets.QMainWindow):
         self.inh_2.clicked.connect(self.othergraphic)
         self.inh_4.clicked.connect(self.inh_4_def)
         self.details.Closer.clicked.connect(self.Closer_def)
+        self.inhTable.itemDoubleClicked.connect(self.selectRow)
+
+    def selectRow(self):
+        self.inhTable.selectRow(self.inhTable.currentRow())
 
     def inh_4_def(self):
         self.details.show()
@@ -73,7 +75,7 @@ class MainWindow(Heliocs.Ui_MainWindow, QtWidgets.QMainWindow):
         i = 0
         if lenPatientList > 0:
             while i < len(self.commonList):
-                if "patientData" in list(os.listdir(os.path.join(self.file, self.commonList[i]))):
+                if "patientData" in list(os.listdir(os.path.join(self.file, self.commonList[i]))) or self.commonList[i] == 'Нет данных о пациенте':
                     self.patientList.addItem(self.commonList[i])
                     i += 1
                 else:
@@ -118,7 +120,7 @@ class MainWindow(Heliocs.Ui_MainWindow, QtWidgets.QMainWindow):
                     fullinfo = list(filedata.read().split("\n"))
                     info = fullinfo[len(fullinfo)-2]
                     self.inhTable.setRowCount(temp_row)
-                    if info[0] == '#':
+                    if len(info) != 0 and info[0] == '#':
                         info = list(info.split(';'))
                         info = info[2:12]
                         for y in range(0,10):
@@ -168,18 +170,23 @@ class MainWindow(Heliocs.Ui_MainWindow, QtWidgets.QMainWindow):
                                 QtCore.Qt.ItemIsSelectable | QtCore.Qt.ItemIsEnabled
                             )
                             self.inhTable.setItem(temp_row-1, y, temp_item)
-                        temp_item = QtWidgets.QTableWidgetItem(i)
-                        temp_item.setFlags(
-                            QtCore.Qt.ItemIsSelectable | QtCore.Qt.ItemIsEnabled
-                        )
-                        self.inhTable.setItem(temp_row-1, 10, temp_item)
+                            temp_item = QtWidgets.QTableWidgetItem(i)
+                            temp_item.setFlags(
+                                QtCore.Qt.ItemIsSelectable | QtCore.Qt.ItemIsEnabled
+                            )
+                            self.inhTable.setItem(temp_row - 1, 10, temp_item)
                     else:
-                        for y in range(0,10):
+                        for y in range(0,11):
                             temp_item = QtWidgets.QTableWidgetItem('---')
                             temp_item.setFlags(
                                 QtCore.Qt.ItemIsSelectable | QtCore.Qt.ItemIsEnabled
                             )
                             self.inhTable.setItem(temp_row-1, y, temp_item)
+                        temp_item = QtWidgets.QTableWidgetItem(i)
+                        temp_item.setFlags(
+                            QtCore.Qt.ItemIsSelectable | QtCore.Qt.ItemIsEnabled
+                        )
+                        self.inhTable.setItem(temp_row - 1, 10, temp_item)
                     temp_row += 1
         self.inhTable.horizontalHeader().setResizeMode(10, QHeaderView.ResizeToContents)
         self.graphic.id_patient_w.setText(self.id_w.text())
@@ -190,6 +197,8 @@ class MainWindow(Heliocs.Ui_MainWindow, QtWidgets.QMainWindow):
             temp_string = temp_string + self.name_w.text() + ' '
         if self.surname_w.text() != '---':
             temp_string = temp_string + self.surname_w.text() + ' '
+        if temp_string == "":
+            temp_string = '---'
         self.graphic.Patientl_w.setText(temp_string)
         self.FiO2()
         self.F()
@@ -304,32 +313,40 @@ class MainWindow(Heliocs.Ui_MainWindow, QtWidgets.QMainWindow):
         self.graphic.Date_inhalation_w.setText(self.inhTable.item(self.inhTable.currentRow(), 0).text())
         self.graphic.dlitelnost_inh_w.setText(self.inhTable.item(self.inhTable.currentRow(),1).text())
         if os.path.exists(os.path.join(self.file, self.commonList[self.patientList.currentRow()],
-                                   self.inhTable.item(self.inhTable.currentRow(), 7).text())):
+                                   self.inhTable.item(self.inhTable.currentRow(), 10).text())):
             with open(os.path.join(self.file, self.commonList[self.patientList.currentRow()],
-                                   self.inhTable.item(self.inhTable.currentRow(), 7).text()), 'r', encoding="UTF-8") as currentlog:
+                                   self.inhTable.item(self.inhTable.currentRow(), 10).text()), 'r', encoding="UTF-8") as currentlog:
                 logfile = currentlog.read().split('\n')
                 for i in logfile:
                     i = i[0:len(i)-2]
                     i = i.split(';')
                     if len(i) > 20 and i[0] != '#':
-                        self.Davlenie_v_maske_g[0].append(int(i[0])/100)
-                        self.koncetracia_O2_g[0].append(int(i[0])/100)
-                        self.temperatura_vdihaemoi_smesi_g[0].append(int(i[0])/100)
-                        self.obiem_g[0].append(int(i[0])/100)
-                        self.chastota_dihaniya_g[0].append(int(i[0])/100)
-                        self.potok_g[0].append(int(i[0])/100)
-                        self.minutni_obiem_g[0].append(int(i[0])/100)
-                        self.SpO2_g[0].append(int(i[0])/100)
-                        self.pulse_g[0].append(int(i[0])/100)
-                        self.Davlenie_v_maske_g[1].append(int(i[4]) / 100)
-                        self.koncetracia_O2_g[1].append(int(i[5]))
-                        self.temperatura_vdihaemoi_smesi_g[1].append(int(i[6]))
-                        self.obiem_g[1].append(int(i[7]))
-                        self.chastota_dihaniya_g[1].append(int(i[8]))
-                        self.potok_g[1].append(int(i[9])/10)
-                        self.minutni_obiem_g[1].append(int(i[14]))
-                        self.SpO2_g[1].append(int(i[19]))
-                        self.pulse_g[1].append(int(i[20]))
+                        self.Davlenie_v_maske_g[0].append(int(i[0])/1000)
+                        self.koncetracia_O2_g[0].append(int(i[0])/1000)
+                        self.temperatura_vdihaemoi_smesi_g[0].append(int(i[0])/1000)
+                        self.obiem_g[0].append(int(i[0])/1000)
+                        self.chastota_dihaniya_g[0].append(int(i[0])/1000)
+                        self.potok_g[0].append(int(i[0])/1000)
+                        self.minutni_obiem_g[0].append(int(i[0])/1000)
+                        self.SpO2_g[0].append(int(i[0])/1000)
+                        self.pulse_g[0].append(int(i[0])/1000)
+                        self.Davlenie_v_maske_g[1].append(int(i[3]) / 100)
+                        self.koncetracia_O2_g[1].append(int(i[4]))
+                        self.temperatura_vdihaemoi_smesi_g[1].append(int(i[5]))
+                        self.obiem_g[1].append(int(i[6]))
+                        self.chastota_dihaniya_g[1].append(int(i[7]))
+                        self.potok_g[1].append(int(i[8])/10)
+                        self.minutni_obiem_g[1].append(int(i[13]))
+                        if int(i[19]) == 255:
+                            temp = 0
+                        else:
+                            temp = int(i[19])
+                        self.SpO2_g[1].append(temp)
+                        if int(i[20]) == 255:
+                            temp = 0
+                        else:
+                            temp = int(i[20])
+                        self.pulse_g[1].append(temp)
                 self.Davl()
                 self.Konc()
                 self.Temp()
@@ -440,8 +457,16 @@ class MainWindow(Heliocs.Ui_MainWindow, QtWidgets.QMainWindow):
                     if len(temp4) == 1: temp4 = '0' + temp4
                     if len(temp5) == 1: temp5 = '0' + temp5
                     if len(temp6) == 1: temp6 = '0' + temp6
-                    self.graphic.spisokDat.setItem(i, 0, QtWidgets.QTableWidgetItem(temp3+'.'+temp2+'.'+temp1))
-                    self.graphic.spisokDat.setItem(i, 1, QtWidgets.QTableWidgetItem(temp4+':'+temp5+':'+temp6))
+                    temp7 = QtWidgets.QTableWidgetItem(temp3 + '.' + temp2 + '.' + temp1)
+                    temp8 = QtWidgets.QTableWidgetItem(temp4 + ':' + temp5 + ':' + temp6)
+                    temp7.setFlags(
+                        QtCore.Qt.ItemIsSelectable | QtCore.Qt.ItemIsEnabled
+                    )
+                    temp8.setFlags(
+                        QtCore.Qt.ItemIsSelectable | QtCore.Qt.ItemIsEnabled
+                    )
+                    self.graphic.spisokDat.setItem(i, 0, temp7)
+                    self.graphic.spisokDat.setItem(i, 1, temp8)
             self.graphic.spisokDat.resizeColumnsToContents()
             FiO2_gr_2 = [[FiO2_gr[i][6] for i in range(0,len(FiO2_gr))], [i+1 for i in range(0,len(FiO2_gr))]]
             self.FiO2_sr_gr.setData(FiO2_gr_2[1], FiO2_gr_2[0], pen=pen)
@@ -470,8 +495,16 @@ class MainWindow(Heliocs.Ui_MainWindow, QtWidgets.QMainWindow):
                     if len(temp4) == 1: temp4 = '0' + temp4
                     if len(temp5) == 1: temp5 = '0' + temp5
                     if len(temp6) == 1: temp6 = '0' + temp6
-                    self.graphic.spisokDat.setItem(i, 0, QtWidgets.QTableWidgetItem(temp3+'.'+temp2+'.'+temp1))
-                    self.graphic.spisokDat.setItem(i, 1, QtWidgets.QTableWidgetItem(temp4+':'+temp5+':'+temp6))
+                    temp7 = QtWidgets.QTableWidgetItem(temp3 + '.' + temp2 + '.' + temp1)
+                    temp8 = QtWidgets.QTableWidgetItem(temp4 + ':' + temp5 + ':' + temp6)
+                    temp7.setFlags(
+                        QtCore.Qt.ItemIsSelectable | QtCore.Qt.ItemIsEnabled
+                    )
+                    temp8.setFlags(
+                        QtCore.Qt.ItemIsSelectable | QtCore.Qt.ItemIsEnabled
+                    )
+                    self.graphic.spisokDat.setItem(i, 0, temp7)
+                    self.graphic.spisokDat.setItem(i, 1, temp8)
             self.graphic.spisokDat.resizeColumnsToContents()
             V_gr_2 = [[V_gr[i][6] for i in range(0, len(V_gr))], [i+1 for i in range(0, len(V_gr))]]
             self.V_sr_gr.setData(V_gr_2[1], V_gr_2[0], pen=pen)
@@ -499,8 +532,16 @@ class MainWindow(Heliocs.Ui_MainWindow, QtWidgets.QMainWindow):
                     if len(temp4) == 1: temp4 = '0' + temp4
                     if len(temp5) == 1: temp5 = '0' + temp5
                     if len(temp6) == 1: temp6 = '0' + temp6
-                    self.graphic.spisokDat.setItem(i, 0, QtWidgets.QTableWidgetItem(temp3+'.'+temp2+'.'+temp1))
-                    self.graphic.spisokDat.setItem(i, 1, QtWidgets.QTableWidgetItem(temp4+':'+temp5+':'+temp6))
+                    temp7 = QtWidgets.QTableWidgetItem(temp3 + '.' + temp2 + '.' + temp1)
+                    temp8 = QtWidgets.QTableWidgetItem(temp4 + ':' + temp5 + ':' + temp6)
+                    temp7.setFlags(
+                        QtCore.Qt.ItemIsSelectable | QtCore.Qt.ItemIsEnabled
+                    )
+                    temp8.setFlags(
+                        QtCore.Qt.ItemIsSelectable | QtCore.Qt.ItemIsEnabled
+                    )
+                    self.graphic.spisokDat.setItem(i, 0, temp7)
+                    self.graphic.spisokDat.setItem(i, 1, temp8)
             self.graphic.spisokDat.resizeColumnsToContents()
             F_gr_2 = [[F_gr[i][6] for i in range(0, len(F_gr))], [i+1 for i in range(0, len(F_gr))]]
             self.F_sr_gr.setData(F_gr_2[1], F_gr_2[0], pen=pen)
@@ -528,8 +569,16 @@ class MainWindow(Heliocs.Ui_MainWindow, QtWidgets.QMainWindow):
                     if len(temp4) == 1: temp4 = '0' + temp4
                     if len(temp5) == 1: temp5 = '0' + temp5
                     if len(temp6) == 1: temp6 = '0' + temp6
-                    self.graphic.spisokDat.setItem(i, 0, QtWidgets.QTableWidgetItem(temp3+'.'+temp2+'.'+temp1))
-                    self.graphic.spisokDat.setItem(i, 1, QtWidgets.QTableWidgetItem(temp4+':'+temp5+':'+temp6))
+                    temp7 = QtWidgets.QTableWidgetItem(temp3 + '.' + temp2 + '.' + temp1)
+                    temp8 = QtWidgets.QTableWidgetItem(temp4 + ':' + temp5 + ':' + temp6)
+                    temp7.setFlags(
+                        QtCore.Qt.ItemIsSelectable | QtCore.Qt.ItemIsEnabled
+                    )
+                    temp8.setFlags(
+                        QtCore.Qt.ItemIsSelectable | QtCore.Qt.ItemIsEnabled
+                    )
+                    self.graphic.spisokDat.setItem(i, 0, temp7)
+                    self.graphic.spisokDat.setItem(i, 1, temp8)
             self.graphic.spisokDat.resizeColumnsToContents()
             T_gr_2 = [[T_gr[i][6] for i in range(0, len(T_gr))], [i+1 for i in range(0, len(T_gr))]]
             self.T_sr_gr.setData(T_gr_2[1], T_gr_2[0], pen=pen)
@@ -559,10 +608,16 @@ class MainWindow(Heliocs.Ui_MainWindow, QtWidgets.QMainWindow):
                     if len(temp4) == 1: temp4 = '0' + temp4
                     if len(temp5) == 1: temp5 = '0' + temp5
                     if len(temp6) == 1: temp6 = '0' + temp6
-                    self.graphic.spisokDat.setItem(i, 0,
-                                                   QtWidgets.QTableWidgetItem(temp3 + '.' + temp2 + '.' + temp1))
-                    self.graphic.spisokDat.setItem(i, 1,
-                                                   QtWidgets.QTableWidgetItem(temp4 + ':' + temp5 + ':' + temp6))
+                    temp7 = QtWidgets.QTableWidgetItem(temp3 + '.' + temp2 + '.' + temp1)
+                    temp8 = QtWidgets.QTableWidgetItem(temp4 + ':' + temp5 + ':' + temp6)
+                    temp7.setFlags(
+                        QtCore.Qt.ItemIsSelectable | QtCore.Qt.ItemIsEnabled
+                    )
+                    temp8.setFlags(
+                        QtCore.Qt.ItemIsSelectable | QtCore.Qt.ItemIsEnabled
+                    )
+                    self.graphic.spisokDat.setItem(i, 0, temp7)
+                    self.graphic.spisokDat.setItem(i, 1, temp8)
             self.graphic.spisokDat.resizeColumnsToContents()
             SpO2_mid_gr_2 = [[SpO2_mid_gr[i][6] for i in range(0, len(SpO2_mid_gr))], [i + 1 for i in range(0, len(SpO2_mid_gr))]]
             self.SpO2_mid_sr_gr.setData(SpO2_mid_gr_2[1], SpO2_mid_gr_2[0], pen=pen)
@@ -581,14 +636,17 @@ class MainWindow(Heliocs.Ui_MainWindow, QtWidgets.QMainWindow):
         pdf.cell(150, 10, txt='ID пациента:{}'.format(self.graphic.id_patient_w.text()), ln = 1)
         pdf.cell(150, 10, txt='ФИО пациента:{}'.format(self.graphic.Patientl_w.text()), ln = 1)
 
-        now = datetime.now() #Высчитывание возраста
-        temp = self.birhday_w.text().split('.')
-        temp = [int(i) for i in temp]
-        year = now.year - temp[2] - 1
-        if now.month > temp[1]:
-            year += 1
-        elif now.month == temp[1] and now.day >= temp[0]:
-            year += 1
+        if self.birhday_w.text() != '---':
+            now = datetime.now() #Высчитывание возраста
+            temp = self.birhday_w.text().split('.')
+            temp = [int(i) for i in temp]
+            year = now.year - temp[2] - 1
+            if now.month > temp[1]:
+                year += 1
+            elif now.month == temp[1] and now.day >= temp[0]:
+                year += 1
+        else:
+            year = '---'
 
         pdf.cell(150, 10, txt='Возраст: {}                    '
                               'Вес: {}                    '
@@ -618,9 +676,9 @@ class MainWindow(Heliocs.Ui_MainWindow, QtWidgets.QMainWindow):
         pdf.cell(150, 10, txt='ID пациента:{}'.format(self.graphic.id_patient_w.text()), ln=1)
         pdf.cell(150, 10, txt='ФИО пациента:{}'.format(self.graphic.Patientl_w.text()), ln=1)
 
-        now = datetime.now()  # Высчитывание возраста
-        temp = self.birhday_w.text().split('.')
-        if not temp == '---':
+        if self.birhday_w.text() != '---':
+            now = datetime.now()  # Высчитывание возраста
+            temp = self.birhday_w.text().split('.')
             temp = [int(i) for i in temp]
             year = now.year - temp[2] - 1
             if now.month > temp[1]:
@@ -798,7 +856,7 @@ class MainWindow(Heliocs.Ui_MainWindow, QtWidgets.QMainWindow):
 if __name__ == "__main__":
     app = QApplication(sys.argv)
     app.setStyleSheet('QMainWindow, Ui_Form, Ui_Dialog{'
-	'background: #191919;'
+	'background: #20242E;'
 	'color: #DDDDDD;'
 	'border: 1px solid #5A5A5A;'
 '}'
@@ -827,13 +885,13 @@ if __name__ == "__main__":
 '}'
 
 'QRadioButton::indicator::checked, QCheckBox::indicator::checked {'
-	'border: 1px solid #FFFFFF;'
-	'background: #DCDCDC;'
+	'border: 2px solid #FFFFFF;'
+	'background: #1B3200;'
 '}'
 
 'QRadioButton::indicator:checked:hover, QCheckBox::indicator:checked:hover {'
 	'border: 1px solid #DDDDDD;'
-	'background: #DDDDDD;'
+	'background: #182509;'
 '}'
 
 'QGroupBox {'
@@ -944,7 +1002,7 @@ if __name__ == "__main__":
 '}'
 
 'QHeaderView::section {'
-	'background: #191919;'
+	'background: #21330D;'
 	'border: 1px solid #5A5A5A;'
 	'padding: 4px;'
     'color: white'
@@ -1060,7 +1118,7 @@ if __name__ == "__main__":
 '}'
                       
 'QTableWidget, QListWidget{'
-    'font: bold 14px;'                      
+    'font: 15px;'                      
 '}'
                       
 '::section{'
