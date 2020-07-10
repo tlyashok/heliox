@@ -52,7 +52,7 @@ class Ui_Form(QtWidgets.QWidget):
 
         sizePolicy_l = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
         sizePolicy_l.setHorizontalStretch(0)
-        sizePolicy_l.setVerticalStretch(0)
+        sizePolicy_l.setVerticalStretch(1)
 
 
         self.Davlenie_v_maske = QtWidgets.QCheckBox(self.groupBox)
@@ -230,7 +230,7 @@ class Ui_Form(QtWidgets.QWidget):
 
 
         sizePolicy_l1 = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
-        sizePolicy_l1.setHorizontalStretch(0)
+        sizePolicy_l1.setHorizontalStretch(1)
         sizePolicy_l1.setVerticalStretch(10)
 
 

@@ -74,8 +74,8 @@ class Ui_MainWindow(object):
         font = QFont("RussianSuvenir-Regular", 13, QFont.Bold)
 
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
-        sizePolicy.setHorizontalStretch(0)
-        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHorizontalStretch(1)
+        sizePolicy.setVerticalStretch(1)
 
         self.height = QtWidgets.QLabel(self.groupBox_3)
         self.height.setFont(font)
