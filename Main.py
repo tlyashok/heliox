@@ -1002,7 +1002,7 @@ if __name__ == "__main__":
 '}'
 
 'QHeaderView::section {'
-	'background: #21330D;'
+	'background: #092244;'
 	'border: 1px solid #5A5A5A;'
 	'padding: 4px;'
     'color: white'
