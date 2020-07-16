@@ -70,7 +70,7 @@ class Ui_MainWindow(object):
         self.formLayout.setVerticalSpacing(15)
         self.formLayout.setFieldGrowthPolicy(QFormLayout.ExpandingFieldsGrow)
         self.formLayout.setObjectName("formLayout")
-        QtGui.QFontDatabase.addApplicationFont(os.getcwd() + '\\' + 'custom_font' + '\\' + 'RussianSuvenir-Regular.otf')
+        QtGui.QFontDatabase.addApplicationFont(os.getcwd() + '\\' + '.custom_font' + '\\' + 'RussianSuvenir-Regular.otf')
         font = QFont("RussianSuvenir-Regular", 13, QFont.Bold)
 
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)

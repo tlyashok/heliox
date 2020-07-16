@@ -7,6 +7,7 @@ from ..Point import Point
 from .ScatterPlotItem import ScatterPlotItem, drawSymbol
 from .PlotDataItem import PlotDataItem
 from .GraphicsWidgetAnchor import GraphicsWidgetAnchor
+from .BarGraphItem import BarGraphItem
 __all__ = ['LegendItem']
 
 
@@ -25,7 +26,7 @@ class LegendItem(GraphicsWidget, GraphicsWidgetAnchor):
 
     """
     def __init__(self, size=None, offset=None, horSpacing=25, verSpacing=0, pen=None,
-                 brush=None, labelTextColor=None, **kwargs):
+                 brush=None, labelTextColor=None, frame=True, rowCount=1, colCount=1, **kwargs):
         """
         ==============  ===============================================================
         **Arguments:**
@@ -59,6 +60,11 @@ class LegendItem(GraphicsWidget, GraphicsWidgetAnchor):
         self.setLayout(self.layout)
         self.items = []
         self.size = size
+        self.offset = offset
+        self.frame = frame
+        self.columnCount = colCount
+        self.rowCount = rowCount
+        self.curRow = 0
         if size is not None:
             self.setGeometry(QtCore.QRectF(0, 0, self.size[0], self.size[1]))
 
@@ -158,13 +164,51 @@ class LegendItem(GraphicsWidget, GraphicsWidgetAnchor):
         if isinstance(item, ItemSample):
             sample = item
         else:
-            sample = ItemSample(item)
-
-        row = self.layout.rowCount()
+            sample = ItemSample(item)    
         self.items.append((sample, label))
-        self.layout.addItem(sample, row, 0)
-        self.layout.addItem(label, row, 1)
+        self._addItemToLayout(sample, label)
         self.updateSize()
+
+    def _addItemToLayout(self, sample, label):
+        col = self.layout.columnCount()
+        row = self.layout.rowCount()
+        if row:
+            row -= 1
+        nCol = self.columnCount*2
+        #FIRST ROW FULL
+        if col == nCol:
+            for col in range(0,nCol,2):
+                #FIND RIGHT COLUMN
+                if not self.layout.itemAt(row, col):
+                    break
+            if col+2 == nCol:
+                #MAKE NEW ROW
+                col = 0
+                row += 1
+        self.layout.addItem(sample, row, col)
+        self.layout.addItem(label, row, col+1)
+
+    def setColumnCount(self, columnCount):
+        '''
+        change the orientation of all items of the legend 
+        '''
+        if columnCount != self.columnCount:
+            self.columnCount = columnCount
+            self.rowCount = int(len(self.items)/columnCount)
+            for i in range(self.layout.count()-1,-1,-1):
+                self.layout.removeAt(i)  #clear layout
+            for sample, label in self.items:
+                self._addItemToLayout(sample, label) 
+            self.updateSize()
+    
+    def getLabel(self, plotItem):
+        """
+        return the labelItem inside the legend for a given plotItem
+        the label-text can be changed via labenItem.setText
+        """
+        out = [(it, lab) for it, lab in self.items if it.item==plotItem]
+        try: return out[0][1]
+        except IndexError: return None
 
     def removeItem(self, item):
         """
@@ -189,7 +233,9 @@ class LegendItem(GraphicsWidget, GraphicsWidgetAnchor):
         """Remove all items from the legend."""
         for sample, label in self.items:
             self.layout.removeItem(sample)
+            sample.close()
             self.layout.removeItem(label)
+            label.close()
 
         self.items = []
         self.updateSize()
@@ -197,16 +243,29 @@ class LegendItem(GraphicsWidget, GraphicsWidgetAnchor):
     def updateSize(self):
         if self.size is not None:
             return
-
-        self.setGeometry(0, 0, 0, 0)
+        height = 0
+        width = 0
+        for row in range(self.layout.rowCount()):
+            row_height = 0 
+            col_witdh = 0
+            for col in range(self.layout.columnCount()):
+                item = self.layout.itemAt(row, col)
+                if item:
+                    col_witdh += item.width() + 3
+                    row_height = max(row_height, item.height())
+            width = max(width, col_witdh)
+            height += row_height
+        self.setGeometry(0, 0, width, height)
+        return
 
     def boundingRect(self):
         return QtCore.QRectF(0, 0, self.width(), self.height())
 
     def paint(self, p, *args):
-        p.setPen(self.opts['pen'])
-        p.setBrush(self.opts['brush'])
-        p.drawRect(self.boundingRect())
+        if self.frame:
+            p.setPen(self.opts['pen'])
+            p.setBrush(self.opts['brush'])
+            p.drawRect(self.boundingRect())
 
     def hoverEvent(self, ev):
         ev.acceptDrags(QtCore.Qt.LeftButton)
@@ -241,14 +300,19 @@ class ItemSample(GraphicsWidget):
             p.setPen(fn.mkPen(opts['pen']))
             p.drawLine(0, 11, 20, 11)
 
+            if opts.get('fillLevel', None) is not None and opts.get('fillBrush', None) is not None:
+                p.setBrush(fn.mkBrush(opts['fillBrush']))
+                p.setPen(fn.mkPen(opts['fillBrush']))
+                p.drawPolygon(QtGui.QPolygonF([QtCore.QPointF(2, 18), QtCore.QPointF(18, 2), QtCore.QPointF(18, 18)]))
+
+
         symbol = opts.get('symbol', None)
         if symbol is not None:
             if isinstance(self.item, PlotDataItem):
                 opts = self.item.scatter.opts
-
-            pen = fn.mkPen(opts['pen'])
-            brush = fn.mkBrush(opts['brush'])
-            size = opts['size']
-
             p.translate(10, 10)
-            path = drawSymbol(p, symbol, size, pen, brush)
+            drawSymbol(p, symbol, opts['size'], fn.mkPen(opts['pen']), fn.mkBrush(opts['brush']))
+
+        if isinstance(self.item, BarGraphItem):
+            p.setBrush(fn.mkBrush(opts['brush']))
+            p.drawRect(QtCore.QRectF(2, 2, 18, 18))

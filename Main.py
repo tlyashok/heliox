@@ -23,7 +23,8 @@ class MainWindow(Heliocs.Ui_MainWindow, QtWidgets.QMainWindow):
         self.details = inhDetails.Ui_Dialog()
         self.details.hide()
         self.setupUi(self)
-        self.graphic.graph.addLegend(offset=[0,-300])
+        self.graphic.graph.showGrid(x=True, y=True, alpha=0.3)
+        self.graphic.graph.addLegend()
         self.davl_gr = self.graphic.graph.plot([],[], name='Давление в маске (см.вод.ст.)')
         self.konc_gr = self.graphic.graph.plot([],[], name='Концентрация O2 (%)')
         self.temp_gr = self.graphic.graph.plot([],[], name='Температура вдыхаемой смеси (град.)')
@@ -628,8 +629,8 @@ class MainWindow(Heliocs.Ui_MainWindow, QtWidgets.QMainWindow):
     def printActive(self):
         pdf = FPDF(orientation='P', unit='mm', format='A4')
         pdf.add_page()
-        pdf.add_font('DejaVuSansBold', '', 'DejaVuSans-Bold.ttf', uni=True)
-        pdf.add_font('DejaVuSans', '', 'DejaVuSans.ttf', uni=True)
+        pdf.add_font('DejaVuSansBold', '', os.getcwd() + '\\' + '.custom_font' + '\\' + 'DejaVuSans-Bold.ttf', uni=True)
+        pdf.add_font('DejaVuSans', '', os.getcwd() + '\\' + '.custom_font' + '\\'  + 'DejaVuSans.ttf', uni=True)
         pdf.set_font('DejaVuSansBold', '', 20)
         pdf.cell(190, 20, txt='Аппарат ГелиОкс', align='C', ln = 1)
         pdf.set_font('DejaVuSans', '', 12)
@@ -668,8 +669,8 @@ class MainWindow(Heliocs.Ui_MainWindow, QtWidgets.QMainWindow):
     def printActive2(self):
         pdf = FPDF(orientation='P', unit='mm', format='A4')
         pdf.add_page()
-        pdf.add_font('DejaVuSansBold', '', 'DejaVuSans-Bold.ttf', uni=True)
-        pdf.add_font('DejaVuSans', '', 'DejaVuSans.ttf', uni=True)
+        pdf.add_font('DejaVuSansBold', '', os.getcwd() + '\\' + '.custom_font' + '\\' + 'DejaVuSans-Bold.ttf', uni=True)
+        pdf.add_font('DejaVuSans', '', os.getcwd() + '\\' + '.custom_font' + '\\'  + 'DejaVuSans.ttf', uni=True)
         pdf.set_font('DejaVuSansBold', '', 20)
         pdf.cell(190, 20, txt='Аппарат ГелиОкс', align='C', ln=1)
         pdf.set_font('DejaVuSans', '', 12)
@@ -717,13 +718,13 @@ class MainWindow(Heliocs.Ui_MainWindow, QtWidgets.QMainWindow):
 
     def save_graph(self):
         exporter = ImageExporter(self.graphic.graph.getPlotItem())
-        exporter.export(QFileDialog.getSaveFileName(self, 'Сохранить график', r'C:\Users\Comp2\Desktop\График.png', filter="Images (*.png)")[0])
+        exporter.export(QFileDialog.getSaveFileName(self, 'Сохранить график', filter="Images (*.png)")[0])
 
     def spisokInh(self):
         pdf = FPDF(orientation='P', unit='mm', format='A4')
         pdf.add_page()
-        pdf.add_font('DejaVuSansBold', '', 'DejaVuSans-Bold.ttf', uni=True)
-        pdf.add_font('DejaVuSans', '', 'DejaVuSans.ttf', uni=True)
+        pdf.add_font('DejaVuSansBold', '', os.getcwd() + '\\' + '.custom_font' + '\\' + 'DejaVuSans-Bold.ttf', uni=True)
+        pdf.add_font('DejaVuSans', '', os.getcwd() + '\\' + '.custom_font' + '\\' + 'DejaVuSans.ttf', uni=True)
         pdf.set_font('DejaVuSansBold', '', 20)
         pdf.cell(190, 20, txt='Аппарат ГелиОкс', align='C', ln=1)
         pdf.set_font('DejaVuSans', '', 12)
@@ -750,12 +751,12 @@ class MainWindow(Heliocs.Ui_MainWindow, QtWidgets.QMainWindow):
             os.mkdir('\\Heliox_temp')
         pdf.set_font('DejaVuSansBold', '', 15)
         pdf.cell(150, 10, txt='Список ингаляций:', ln=1)
-        pdf.set_font('DejaVuSans', '', 11)
+        pdf.set_font('DejaVuSans', '', 8)
 
-        col_width = pdf.w / 7.5
+        col_width = pdf.w / 10.6
         row_height = pdf.font_size
         spacing = 3
-        temp_arr = ['Дата', 'Время', 'Длит,мин', 'FiO2 сред,%','V сред,мл','F сред,1/мин','T сред,град']
+        temp_arr = ["Дата", "Время", "Длит, мин", "FiO2 сред", "T сред, град", "V сред, мл", "V в нач, мл", "V в конц, мл", "F ср, 1/мин", "SpO2, %"]
         for x in temp_arr:
             pdf.cell(col_width, row_height * spacing,
                      txt=x, border=1)
@@ -853,7 +854,7 @@ class MainWindow(Heliocs.Ui_MainWindow, QtWidgets.QMainWindow):
 
 
 
-if __name__ == "__main__":
+try:
     app = QApplication(sys.argv)
     app.setStyleSheet('QMainWindow, Ui_Form, Ui_Dialog{'
 	'background: #20242E;'
@@ -885,7 +886,7 @@ if __name__ == "__main__":
 '}'
 
 'QRadioButton::indicator::checked, QCheckBox::indicator::checked {'
-	'border: 2px solid #FFFFFF;'
+	'border: 1px solid #FFFFFF;'
 	'background: #1B3200;'
 '}'
 
@@ -1126,4 +1127,7 @@ if __name__ == "__main__":
 '}')
     window = MainWindow()
     window.show()
-    app.exec_()
+    sys.exit(app.exec_())
+except:
+    sys.exit()
+

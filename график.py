@@ -46,7 +46,7 @@ class Ui_Form(QtWidgets.QWidget):
         self.formLayout.setHorizontalSpacing(50)
         self.formLayout.setVerticalSpacing(20)
         self.formLayout.setObjectName("formLayout")
-        QtGui.QFontDatabase.addApplicationFont(os.getcwd() + '\\' + 'custom_font' + '\\' + 'RussianSuvenir-Regular.otf')
+        QtGui.QFontDatabase.addApplicationFont(os.getcwd() + '\\' + '.custom_font' + '\\' + 'RussianSuvenir-Regular.otf')
         font = QFont("RussianSuvenir-Regular", 11, QFont.Bold)
 
 
@@ -288,7 +288,7 @@ class Ui_Form(QtWidgets.QWidget):
         self.horizontalLayout_2.addWidget(self.widget_7)
         self.verticalLayout_3.addWidget(self.Patient)
 
-        self.graph = PlotWidget(self.widget)
+        self.graph = PlotWidget(self.widget, enableMenu=False)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Preferred)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(5)
