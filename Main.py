@@ -3,7 +3,8 @@ import sys
 
 import pyqtgraph
 from PyQt5 import QtWidgets, QtCore
-from PyQt5.QtWidgets import QApplication, QFileDialog, QHeaderView
+from PyQt5.QtGui import QIcon
+from PyQt5.QtWidgets import QApplication, QFileDialog, QHeaderView, QAbstractItemView
 from fpdf import FPDF
 from datetime import datetime
 from pyqtgraph.exporters import ImageExporter
@@ -23,6 +24,7 @@ class MainWindow(Heliocs.Ui_MainWindow, QtWidgets.QMainWindow):
         self.details = inhDetails.Ui_Dialog()
         self.details.hide()
         self.setupUi(self)
+        self.setWindowIcon(QIcon(os.getcwd() + '\\' + '.icon' + '\\' + 'icon.ico'))
         self.graphic.graph.showGrid(x=True, y=True, alpha=0.3)
         self.graphic.graph.addLegend()
         self.davl_gr = self.graphic.graph.plot([],[], name='Давление в маске (см.вод.ст.)')
@@ -49,10 +51,12 @@ class MainWindow(Heliocs.Ui_MainWindow, QtWidgets.QMainWindow):
         self.inh_2.clicked.connect(self.othergraphic)
         self.inh_4.clicked.connect(self.inh_4_def)
         self.details.Closer.clicked.connect(self.Closer_def)
-        self.inhTable.itemDoubleClicked.connect(self.selectRow)
+        self.inhTable.itemDoubleClicked.connect(self.selectRowDoubleClicked)
+        self.inhTable.setSelectionBehavior(QAbstractItemView.SelectRows)
+        self.inhTable.setSelectionMode(QAbstractItemView.SingleSelection)
 
-    def selectRow(self):
-        self.inhTable.selectRow(self.inhTable.currentRow())
+    def selectRowDoubleClicked(self):
+        self.details.show()
 
     def inh_4_def(self):
         self.details.show()
@@ -76,7 +80,8 @@ class MainWindow(Heliocs.Ui_MainWindow, QtWidgets.QMainWindow):
         i = 0
         if lenPatientList > 0:
             while i < len(self.commonList):
-                if "patientData" in list(os.listdir(os.path.join(self.file, self.commonList[i]))) or self.commonList[i] == 'Нет данных о пациенте':
+                if "patientData" in list(
+                        os.listdir(os.path.join(self.file, self.commonList[i]))) or self.commonList[i] == 'Нет данных о пациенте':
                     self.patientList.addItem(self.commonList[i])
                     i += 1
                 else:
@@ -87,9 +92,11 @@ class MainWindow(Heliocs.Ui_MainWindow, QtWidgets.QMainWindow):
 
     def selectPatient(self):
         self.clear()
+        self.details.hide()
         self.graphic.spisokDat.setRowCount(0)
         if os.path.isfile(os.path.join(self.file, self.commonList[self.patientList.currentRow()], 'patientData')):
-            with open(os.path.join(self.file, self.commonList[self.patientList.currentRow()], 'patientData'), 'r', encoding='UTF-8') as patientData:
+            with open(os.path.join(self.file, self.commonList[self.patientList.currentRow()], 'patientData'), 'r',
+                      encoding='UTF-8') as patientData:
                 data = list(patientData.read().split(';'))
                 if len(data) >= 6:
                     self.id_w.setText(data[0])
@@ -206,6 +213,7 @@ class MainWindow(Heliocs.Ui_MainWindow, QtWidgets.QMainWindow):
         self.V()
         self.T()
         self.SpO2_mid()
+        self.inhTable.clearSelection()
         self.graphic.FiO2.toggled.connect(self.FiO2)
         self.graphic.V.toggled.connect(self.V)
         self.graphic.F.toggled.connect(self.F)
@@ -348,6 +356,21 @@ class MainWindow(Heliocs.Ui_MainWindow, QtWidgets.QMainWindow):
                         else:
                             temp = int(i[20])
                         self.pulse_g[1].append(temp)
+                    elif i[0] == '#' and len(i) > 22:
+                        self.details.FIO_patient.setText(self.patientList.currentItem().text())
+                        self.details.AD_before_inhalation.setText(i[12])
+                        self.details.AD_after_inhalation.setText(i[13])
+                        self.details.Analiz_krovi_before_inhalation.setText(i[14])
+                        self.details.Analiz_krovi_after_inhalation.setText(i[15])
+                        self.details.Level_glucose_before_inhalation.setText(i[16])
+                        self.details.Level_glucose_after_inhalation.setText(i[17])
+                        self.details.Test_dihaniya_before_inhalation.setText(i[18])
+                        self.details.Test_dihaniya_before_inhalation.setText(i[19])
+                        self.details.SpO2_average_before_inhalation.setText(i[20])
+                        self.details.SpO2_average_after_inhalation.setText(i[21])
+
+
+
                 self.Davl()
                 self.Konc()
                 self.Temp()
@@ -1129,5 +1152,5 @@ try:
     window.show()
     sys.exit(app.exec_())
 except:
-    sys.exit()
+    sys.exit(0)
 
