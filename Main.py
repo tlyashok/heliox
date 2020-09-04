@@ -13,11 +13,13 @@ import Heliocs
 import график
 import inhDetails
 
+
 class MainWindow(Heliocs.Ui_MainWindow, QtWidgets.QMainWindow):
-    commonList= []
+    commonList = []
     file = ''
     graphic = ''
     details = ''
+
     def __init__(self):
         super(MainWindow, self).__init__()
         self.graphic = график.Ui_Form()
@@ -27,28 +29,28 @@ class MainWindow(Heliocs.Ui_MainWindow, QtWidgets.QMainWindow):
         self.setWindowIcon(QIcon(os.getcwd() + '\\' + '.icon' + '\\' + 'icon.ico'))
         self.graphic.graph.showGrid(x=True, y=True, alpha=0.3)
         self.graphic.graph.addLegend()
-        self.davl_gr = self.graphic.graph.plot([],[], name='Давление в маске (см.вод.ст.)')
-        self.konc_gr = self.graphic.graph.plot([],[], name='Концентрация O2 (%)')
-        self.temp_gr = self.graphic.graph.plot([],[], name='Температура вдыхаемой смеси (град.)')
-        self.obiem_gr = self.graphic.graph.plot([],[], name='Объём (мл)')
-        self.chastota_gr = self.graphic.graph.plot([],[], name='Частота дыхания (1/мин)')
-        self.potok_gr = self.graphic.graph.plot([],[], name='Поток (л/мин)')
-        self.minutni_gr = self.graphic.graph.plot([],[], name='Минутный объём (л/мин)')
-        self.spo2_gr= self.graphic.graph.plot([],[], name='SpO2 (%)')
-        self.pulse_gr = self.graphic.graph.plot([],[], name='Пульс (1/мин)')
-        self.FiO2_sr_gr = self.graphic.graph.plot([],[], name='FiO2 сред (%)')
-        self.V_sr_gr = self.graphic.graph.plot([],[], name='V сред (мл)')
-        self.F_sr_gr = self.graphic.graph.plot([],[], name='F сред (1/мин)')
-        self.T_sr_gr = self.graphic.graph.plot([],[], name='T сред (град)')
-        self.SpO2_mid_sr_gr = self.graphic.graph.plot([],[], name='SpO2 сред (%)')
-        self.patientButton.clicked.connect(self.patientButtonClicked)
-        self.inh_1.clicked.connect(self.inhGraph)
+        self.davl_gr = self.graphic.graph.plot([], [], name='Давление в маске (см.вод.ст.)')
+        self.konc_gr = self.graphic.graph.plot([], [], name='Концентрация O2 (%)')
+        self.temp_gr = self.graphic.graph.plot([], [], name='Температура вдыхаемой смеси (град.)')
+        self.obiem_gr = self.graphic.graph.plot([], [], name='Объём (мл)')
+        self.chastota_gr = self.graphic.graph.plot([], [], name='Частота дыхания (1/мин)')
+        self.potok_gr = self.graphic.graph.plot([], [], name='Поток (л/мин)')
+        self.minutni_gr = self.graphic.graph.plot([], [], name='Минутный объём (л/мин)')
+        self.spo2_gr = self.graphic.graph.plot([], [], name='SpO2 (%)')
+        self.pulse_gr = self.graphic.graph.plot([], [], name='Пульс (1/мин)')
+        self.FiO2_sr_gr = self.graphic.graph.plot([], [], name='FiO2 сред (%)')
+        self.V_sr_gr = self.graphic.graph.plot([], [], name='V сред (мл)')
+        self.F_sr_gr = self.graphic.graph.plot([], [], name='F сред (1/мин)')
+        self.T_sr_gr = self.graphic.graph.plot([], [], name='T сред (град)')
+        self.SpO2_mid_sr_gr = self.graphic.graph.plot([], [], name='SpO2 сред (%)')
+        self.patientButton.clicked.connect(self.SelectPatientClicked)
+        self.inh_1.clicked.connect(self.WindowCommonGraph)
         self.inhTable.itemClicked.connect(self.tableClicked)
         self.graphic.pechat_aktivnih_grafikov.clicked.connect(self.printActive)
         self.graphic.pechat_grafikov_dihatelnogo_obiema.clicked.connect(self.printActive2)
         self.graphic.save_button.clicked.connect(self.save_graph)
         self.inh_3.clicked.connect(self.spisokInh)
-        self.inh_2.clicked.connect(self.othergraphic)
+        self.inh_2.clicked.connect(self.WindowCertainInhalation)
         self.inh_4.clicked.connect(self.inh_4_def)
         self.details.Closer.clicked.connect(self.Closer_def)
         self.inhTable.itemDoubleClicked.connect(self.selectRowDoubleClicked)
@@ -64,15 +66,13 @@ class MainWindow(Heliocs.Ui_MainWindow, QtWidgets.QMainWindow):
     def Closer_def(self):
         self.details.hide()
 
-
-    def patientButtonClicked(self):
+    def SelectPatientClicked(self):
         self.file = str(QFileDialog.getExistingDirectory(self, 'Выбор папки...'))
         self.commonList = []
         if len(list(os.walk(self.file))) != 0:
             for i in list(os.walk(self.file))[0][1]:
                 self.commonList.append(i)
             self.patientListTunning()
-
 
     def patientListTunning(self):
         lenPatientList = len(self.commonList)
@@ -81,14 +81,14 @@ class MainWindow(Heliocs.Ui_MainWindow, QtWidgets.QMainWindow):
         if lenPatientList > 0:
             while i < len(self.commonList):
                 if "patientData" in list(
-                        os.listdir(os.path.join(self.file, self.commonList[i]))) or self.commonList[i] == 'Нет данных о пациенте':
+                        os.listdir(os.path.join(self.file, self.commonList[i]))) \
+                        or self.commonList[i] == 'Нет данных о пациенте':
                     self.patientList.addItem(self.commonList[i])
                     i += 1
                 else:
                     self.commonList.remove(self.commonList[i])
         self.patientList.setMinimumWidth(self.patientList.sizeHintForColumn(0) + 30)
         self.patientList.itemClicked.connect(self.selectPatient)
-
 
     def selectPatient(self):
         self.clear()
@@ -124,14 +124,15 @@ class MainWindow(Heliocs.Ui_MainWindow, QtWidgets.QMainWindow):
         self.inhTable.setRowCount(1)
         for i in os.listdir(os.path.join(self.file, self.commonList[self.patientList.currentRow()])):
             if i.endswith('.csv'):
-                with open(os.path.join(self.file, self.commonList[self.patientList.currentRow()], i), 'r', encoding='UTF-8') as filedata:
+                with open(os.path.join(self.file, self.commonList[self.patientList.currentRow()], i), 'r',
+                          encoding='UTF-8') as filedata:
                     fullinfo = list(filedata.read().split("\n"))
-                    info = fullinfo[len(fullinfo)-2]
+                    info = fullinfo[len(fullinfo) - 2]
                     self.inhTable.setRowCount(temp_row)
                     if len(info) != 0 and info[0] == '#':
                         info = list(info.split(';'))
                         info = info[2:12]
-                        for y in range(0,10):
+                        for y in range(0, 10):
                             if y == 3 and info[3] != '---':
                                 temp = []
                                 temp.append(info[0])
@@ -173,23 +174,22 @@ class MainWindow(Heliocs.Ui_MainWindow, QtWidgets.QMainWindow):
                                 temp_item = QtWidgets.QTableWidgetItem(info[y] + ':' + i[::-1][4:6][::-1])
                             else:
                                 temp_item = QtWidgets.QTableWidgetItem(info[y])
-
                             temp_item.setFlags(
                                 QtCore.Qt.ItemIsSelectable | QtCore.Qt.ItemIsEnabled
                             )
-                            self.inhTable.setItem(temp_row-1, y, temp_item)
+                            self.inhTable.setItem(temp_row - 1, y, temp_item)
                             temp_item = QtWidgets.QTableWidgetItem(i)
                             temp_item.setFlags(
                                 QtCore.Qt.ItemIsSelectable | QtCore.Qt.ItemIsEnabled
                             )
                             self.inhTable.setItem(temp_row - 1, 10, temp_item)
                     else:
-                        for y in range(0,11):
+                        for y in range(0, 11):
                             temp_item = QtWidgets.QTableWidgetItem('---')
                             temp_item.setFlags(
                                 QtCore.Qt.ItemIsSelectable | QtCore.Qt.ItemIsEnabled
                             )
-                            self.inhTable.setItem(temp_row-1, y, temp_item)
+                            self.inhTable.setItem(temp_row - 1, y, temp_item)
                         temp_item = QtWidgets.QTableWidgetItem(i)
                         temp_item.setFlags(
                             QtCore.Qt.ItemIsSelectable | QtCore.Qt.ItemIsEnabled
@@ -220,7 +220,7 @@ class MainWindow(Heliocs.Ui_MainWindow, QtWidgets.QMainWindow):
         self.graphic.T.toggled.connect(self.T)
         self.graphic.SpO2_2.toggled.connect(self.SpO2_mid)
 
-    def inhGraph(self):
+    def WindowCommonGraph(self):
         self.graphic.FiO2.setChecked(False)
         self.graphic.F.setChecked(False)
         self.graphic.V.setChecked(False)
@@ -292,9 +292,6 @@ class MainWindow(Heliocs.Ui_MainWindow, QtWidgets.QMainWindow):
         self.graphic.label_9.show()
         self.graphic.show()
 
-
-
-
     def clear(self):
         self.id_w.setText("---")
         self.surname_w.setText("---")
@@ -306,45 +303,45 @@ class MainWindow(Heliocs.Ui_MainWindow, QtWidgets.QMainWindow):
         self.heigh_w.setText("---")
 
     def clearArr(self):
-        self.pulse_g = [[],[]]
-        self.SpO2_g = [[],[]]
-        self.minutni_obiem_g = [[],[]]
-        self.potok_g =[[],[]]
-        self.chastota_dihaniya_g =[[],[]]
-        self.obiem_g =[[],[]]
-        self.temperatura_vdihaemoi_smesi_g =[[],[]]
-        self.koncetracia_O2_g = [[],[]]
-        self.Davlenie_v_maske_g = [[],[]]
-
+        self.pulse_g = [[], []]
+        self.SpO2_g = [[], []]
+        self.minutni_obiem_g = [[], []]
+        self.potok_g = [[], []]
+        self.chastota_dihaniya_g = [[], []]
+        self.obiem_g = [[], []]
+        self.temperatura_vdihaemoi_smesi_g = [[], []]
+        self.koncetracia_O2_g = [[], []]
+        self.Davlenie_v_maske_g = [[], []]
 
     def tableClicked(self):
         self.clearArr()
         self.graphic.Date_inhalation_w.setText(self.inhTable.item(self.inhTable.currentRow(), 0).text())
-        self.graphic.dlitelnost_inh_w.setText(self.inhTable.item(self.inhTable.currentRow(),1).text())
+        self.graphic.dlitelnost_inh_w.setText(self.inhTable.item(self.inhTable.currentRow(), 1).text())
         if os.path.exists(os.path.join(self.file, self.commonList[self.patientList.currentRow()],
-                                   self.inhTable.item(self.inhTable.currentRow(), 10).text())):
+                                       self.inhTable.item(self.inhTable.currentRow(), 10).text())):
             with open(os.path.join(self.file, self.commonList[self.patientList.currentRow()],
-                                   self.inhTable.item(self.inhTable.currentRow(), 10).text()), 'r', encoding="UTF-8") as currentlog:
+                                   self.inhTable.item(self.inhTable.currentRow(), 10).text()), 'r',
+                      encoding="UTF-8") as currentlog:
                 logfile = currentlog.read().split('\n')
                 for i in logfile:
-                    i = i[0:len(i)-2]
+                    i = i[0:len(i) - 2]
                     i = i.split(';')
                     if len(i) > 20 and i[0] != '#':
-                        self.Davlenie_v_maske_g[0].append(int(i[0])/1000)
-                        self.koncetracia_O2_g[0].append(int(i[0])/1000)
-                        self.temperatura_vdihaemoi_smesi_g[0].append(int(i[0])/1000)
-                        self.obiem_g[0].append(int(i[0])/1000)
-                        self.chastota_dihaniya_g[0].append(int(i[0])/1000)
-                        self.potok_g[0].append(int(i[0])/1000)
-                        self.minutni_obiem_g[0].append(int(i[0])/1000)
-                        self.SpO2_g[0].append(int(i[0])/1000)
-                        self.pulse_g[0].append(int(i[0])/1000)
+                        self.Davlenie_v_maske_g[0].append(int(i[0]) / 1000)
+                        self.koncetracia_O2_g[0].append(int(i[0]) / 1000)
+                        self.temperatura_vdihaemoi_smesi_g[0].append(int(i[0]) / 1000)
+                        self.obiem_g[0].append(int(i[0]) / 1000)
+                        self.chastota_dihaniya_g[0].append(int(i[0]) / 1000)
+                        self.potok_g[0].append(int(i[0]) / 1000)
+                        self.minutni_obiem_g[0].append(int(i[0]) / 1000)
+                        self.SpO2_g[0].append(int(i[0]) / 1000)
+                        self.pulse_g[0].append(int(i[0]) / 1000)
                         self.Davlenie_v_maske_g[1].append(int(i[3]) / 100)
                         self.koncetracia_O2_g[1].append(int(i[4]))
                         self.temperatura_vdihaemoi_smesi_g[1].append(int(i[5]))
                         self.obiem_g[1].append(int(i[6]))
                         self.chastota_dihaniya_g[1].append(int(i[7]))
-                        self.potok_g[1].append(int(i[8])/10)
+                        self.potok_g[1].append(int(i[8]) / 10)
                         self.minutni_obiem_g[1].append(int(i[13]))
                         if int(i[19]) == 255:
                             temp = 0
@@ -369,8 +366,6 @@ class MainWindow(Heliocs.Ui_MainWindow, QtWidgets.QMainWindow):
                         self.details.SpO2_average_before_inhalation.setText(i[20])
                         self.details.SpO2_average_after_inhalation.setText(i[21])
 
-
-
                 self.Davl()
                 self.Konc()
                 self.Temp()
@@ -390,14 +385,9 @@ class MainWindow(Heliocs.Ui_MainWindow, QtWidgets.QMainWindow):
                 self.graphic.SpO2.toggled.connect(self.SpO2)
                 self.graphic.pulse.toggled.connect(self.Pulse)
 
-
-
-
-
-
     def Davl(self):
         if self.graphic.Davlenie_v_maske.isChecked():
-            pen = pyqtgraph.mkPen(color=(255,0,0), width=1, style=QtCore.Qt.SolidLine)
+            pen = pyqtgraph.mkPen(color=(255, 0, 0), width=1, style=QtCore.Qt.SolidLine)
             self.davl_gr.setData(self.Davlenie_v_maske_g[0], self.Davlenie_v_maske_g[1], pen=pen)
 
         else:
@@ -405,71 +395,72 @@ class MainWindow(Heliocs.Ui_MainWindow, QtWidgets.QMainWindow):
 
     def Konc(self):
         if self.graphic.koncetracia_O2.isChecked():
-            pen = pyqtgraph.mkPen(color=(0,255,0), width=1, style=QtCore.Qt.SolidLine)
+            pen = pyqtgraph.mkPen(color=(0, 255, 0), width=1, style=QtCore.Qt.SolidLine)
             self.konc_gr.setData(self.koncetracia_O2_g[0], self.koncetracia_O2_g[1], pen=pen)
         else:
             self.konc_gr.setData([], [], pen=pyqtgraph.mkPen())
 
     def Temp(self):
         if self.graphic.temperatura_vdihaemoi_smesi.isChecked():
-            pen = pyqtgraph.mkPen(color=(0,0,255), width=1, style=QtCore.Qt.SolidLine)
+            pen = pyqtgraph.mkPen(color=(0, 0, 255), width=1, style=QtCore.Qt.SolidLine)
             self.temp_gr.setData(self.temperatura_vdihaemoi_smesi_g[0], self.temperatura_vdihaemoi_smesi_g[1], pen=pen)
         else:
             self.temp_gr.setData([], [], pen=pyqtgraph.mkPen())
 
     def Obiem(self):
         if self.graphic.obiem.isChecked():
-            pen = pyqtgraph.mkPen(color=(100,30,100), width=1, style=QtCore.Qt.SolidLine)
+            pen = pyqtgraph.mkPen(color=(100, 30, 100), width=1, style=QtCore.Qt.SolidLine)
             self.obiem_gr.setData(self.obiem_g[0], self.obiem_g[1], pen=pen)
         else:
             self.obiem_gr.setData([], [], pen=pyqtgraph.mkPen())
 
     def Chastota(self):
         if self.graphic.chastota_dihaniya.isChecked():
-            pen = pyqtgraph.mkPen(color=(0,255,255), width=1, style=QtCore.Qt.SolidLine)
+            pen = pyqtgraph.mkPen(color=(0, 255, 255), width=1, style=QtCore.Qt.SolidLine)
             self.chastota_gr.setData(self.chastota_dihaniya_g[0], self.chastota_dihaniya_g[1], pen=pen)
         else:
             self.chastota_gr.setData([], [], pen=pyqtgraph.mkPen())
 
     def Potok(self):
         if self.graphic.potok.isChecked():
-            pen = pyqtgraph.mkPen(color=(255,0,255), width=1, style=QtCore.Qt.SolidLine)
+            pen = pyqtgraph.mkPen(color=(255, 0, 255), width=1, style=QtCore.Qt.SolidLine)
             self.potok_gr.setData(self.potok_g[0], self.potok_g[1], pen=pen)
         else:
             self.potok_gr.setData([], [], pen=pyqtgraph.mkPen())
 
     def Minutni(self):
         if self.graphic.minutni_obiem.isChecked():
-            pen = pyqtgraph.mkPen(color=(100,200,100), width=1, style=QtCore.Qt.SolidLine)
+            pen = pyqtgraph.mkPen(color=(100, 200, 100), width=1, style=QtCore.Qt.SolidLine)
             self.minutni_gr.setData(self.minutni_obiem_g[0], self.minutni_obiem_g[1], pen=pen)
         else:
             self.minutni_gr.setData([], [], pen=pyqtgraph.mkPen())
 
     def SpO2(self):
         if self.graphic.SpO2.isChecked():
-            pen = pyqtgraph.mkPen(color=(100,50,100), width=1, style=QtCore.Qt.SolidLine)
+            pen = pyqtgraph.mkPen(color=(100, 50, 100), width=1, style=QtCore.Qt.SolidLine)
             self.spo2_gr.setData(self.SpO2_g[0], self.SpO2_g[1], pen=pen)
         else:
             self.spo2_gr.setData([], [], pen=pyqtgraph.mkPen())
 
     def Pulse(self):
         if self.graphic.pulse.isChecked():
-            pen = pyqtgraph.mkPen(color=(0,100,0), width=1, style=QtCore.Qt.SolidLine)
+            pen = pyqtgraph.mkPen(color=(0, 100, 0), width=1, style=QtCore.Qt.SolidLine)
             self.pulse_gr.setData(self.pulse_g[0], self.pulse_g[1], pen=pen)
         else:
             self.pulse_gr.setData([], [], pen=pyqtgraph.mkPen())
 
-
     def FiO2(self):
         if self.graphic.FiO2.isChecked():
-            pen = pyqtgraph.mkPen(color=(255,0,0), width=1, style=QtCore.Qt.SolidLine)
+            pen = pyqtgraph.mkPen(color=(255, 0, 0), width=1, style=QtCore.Qt.SolidLine)
 
-            FiO2_gr = [[[int(y[3])],[int(i) for i in y[0].split('.')[::-1]], [int(i) for i in y[1].split(':')], int(y[2])] for y in self.FiO2_gr]
+            FiO2_gr = [
+                [[int(y[3])], [int(i) for i in y[0].split('.')[::-1]], [int(i) for i in y[1].split(':')], int(y[2])] for
+                y in self.FiO2_gr]
             FiO2_gr = [i[1] + i[2] + i[0] + [i[3]] for i in FiO2_gr]
             FiO2_gr.sort()
             if self.graphic.spisokDat.rowCount() == 0:
                 self.graphic.spisokDat.setRowCount(len(FiO2_gr))
-                for i in range(len(FiO2_gr)-1, -1, -1):
+                for i in range(len(FiO2_gr) - 1, -1, -1):
                     temp1 = str(FiO2_gr[i][0])
                     temp2 = str(FiO2_gr[i][1])
                     temp3 = str(FiO2_gr[i][2])
@@ -492,22 +483,22 @@ class MainWindow(Heliocs.Ui_MainWindow, QtWidgets.QMainWindow):
                     self.graphic.spisokDat.setItem(i, 0, temp7)
                     self.graphic.spisokDat.setItem(i, 1, temp8)
             self.graphic.spisokDat.resizeColumnsToContents()
-            FiO2_gr_2 = [[FiO2_gr[i][6] for i in range(0,len(FiO2_gr))], [i+1 for i in range(0,len(FiO2_gr))]]
+            FiO2_gr_2 = [[FiO2_gr[i][6] for i in range(0, len(FiO2_gr))], [i + 1 for i in range(0, len(FiO2_gr))]]
             self.FiO2_sr_gr.setData(FiO2_gr_2[1], FiO2_gr_2[0], pen=pen)
-            print(self.graphic.spisokDat.rowCount())
         else:
             self.FiO2_sr_gr.setData([], [], pen=pyqtgraph.mkPen())
 
     def V(self):
         if self.graphic.V.isChecked():
-            pen = pyqtgraph.mkPen(color=(0,255,0), width=1, style=QtCore.Qt.SolidLine)
-            V_gr = [[[int(y[3])],[int(i) for i in y[0].split('.')[::-1]], [int(i) for i in y[1].split(':')], int(y[2])] for y in
-                       self.V_gr]
+            pen = pyqtgraph.mkPen(color=(0, 255, 0), width=1, style=QtCore.Qt.SolidLine)
+            V_gr = [[[int(y[3])], [int(i) for i in y[0].split('.')[::-1]], [int(i) for i in y[1].split(':')], int(y[2])]
+                    for y in
+                    self.V_gr]
             V_gr = [i[1] + i[2] + i[0] + [i[3]] for i in V_gr]
             V_gr.sort()
             if self.graphic.spisokDat.rowCount() == 0:
                 self.graphic.spisokDat.setRowCount(len(V_gr))
-                for i in range(len(V_gr)-1, -1, -1):
+                for i in range(len(V_gr) - 1, -1, -1):
                     temp1 = str(V_gr[i][0])
                     temp2 = str(V_gr[i][1])
                     temp3 = str(V_gr[i][2])
@@ -530,21 +521,22 @@ class MainWindow(Heliocs.Ui_MainWindow, QtWidgets.QMainWindow):
                     self.graphic.spisokDat.setItem(i, 0, temp7)
                     self.graphic.spisokDat.setItem(i, 1, temp8)
             self.graphic.spisokDat.resizeColumnsToContents()
-            V_gr_2 = [[V_gr[i][6] for i in range(0, len(V_gr))], [i+1 for i in range(0, len(V_gr))]]
+            V_gr_2 = [[V_gr[i][6] for i in range(0, len(V_gr))], [i + 1 for i in range(0, len(V_gr))]]
             self.V_sr_gr.setData(V_gr_2[1], V_gr_2[0], pen=pen)
         else:
             self.V_sr_gr.setData([], [], pen=pyqtgraph.mkPen())
 
     def F(self):
         if self.graphic.F.isChecked():
-            pen = pyqtgraph.mkPen(color=(0,0,255), width=1, style=QtCore.Qt.SolidLine)
-            F_gr = [[[int(y[3])],[int(i) for i in y[0].split('.')[::-1]], [int(i) for i in y[1].split(':')], int(y[2])] for y in
-                       self.F_gr]
+            pen = pyqtgraph.mkPen(color=(0, 0, 255), width=1, style=QtCore.Qt.SolidLine)
+            F_gr = [[[int(y[3])], [int(i) for i in y[0].split('.')[::-1]], [int(i) for i in y[1].split(':')], int(y[2])]
+                    for y in
+                    self.F_gr]
             F_gr = [i[1] + i[2] + i[0] + [i[3]] for i in F_gr]
             F_gr.sort()
             if self.graphic.spisokDat.rowCount() == 0:
                 self.graphic.spisokDat.setRowCount(len(F_gr))
-                for i in range(len(F_gr)-1, -1, -1):
+                for i in range(len(F_gr) - 1, -1, -1):
                     temp1 = str(F_gr[i][0])
                     temp2 = str(F_gr[i][1])
                     temp3 = str(F_gr[i][2])
@@ -567,21 +559,22 @@ class MainWindow(Heliocs.Ui_MainWindow, QtWidgets.QMainWindow):
                     self.graphic.spisokDat.setItem(i, 0, temp7)
                     self.graphic.spisokDat.setItem(i, 1, temp8)
             self.graphic.spisokDat.resizeColumnsToContents()
-            F_gr_2 = [[F_gr[i][6] for i in range(0, len(F_gr))], [i+1 for i in range(0, len(F_gr))]]
+            F_gr_2 = [[F_gr[i][6] for i in range(0, len(F_gr))], [i + 1 for i in range(0, len(F_gr))]]
             self.F_sr_gr.setData(F_gr_2[1], F_gr_2[0], pen=pen)
         else:
             self.F_sr_gr.setData([], [], pen=pyqtgraph.mkPen())
 
     def T(self):
         if self.graphic.T.isChecked():
-            pen = pyqtgraph.mkPen(color=(100,30,100), width=1, style=QtCore.Qt.SolidLine)
-            T_gr = [[[int(y[3])],[int(i) for i in y[0].split('.')[::-1]], [int(i) for i in y[1].split(':')], int(y[2])] for y in
+            pen = pyqtgraph.mkPen(color=(100, 30, 100), width=1, style=QtCore.Qt.SolidLine)
+            T_gr = [[[int(y[3])], [int(i) for i in y[0].split('.')[::-1]], [int(i) for i in y[1].split(':')], int(y[2])]
+                    for y in
                     self.T_gr]
             T_gr = [i[1] + i[2] + i[0] + [i[3]] for i in T_gr]
             T_gr.sort()
             if self.graphic.spisokDat.rowCount() == 0:
                 self.graphic.spisokDat.setRowCount(len(T_gr))
-                for i in range(len(T_gr)-1, -1, -1):
+                for i in range(len(T_gr) - 1, -1, -1):
                     temp1 = str(T_gr[i][0])
                     temp2 = str(T_gr[i][1])
                     temp3 = str(T_gr[i][2])
@@ -604,7 +597,7 @@ class MainWindow(Heliocs.Ui_MainWindow, QtWidgets.QMainWindow):
                     self.graphic.spisokDat.setItem(i, 0, temp7)
                     self.graphic.spisokDat.setItem(i, 1, temp8)
             self.graphic.spisokDat.resizeColumnsToContents()
-            T_gr_2 = [[T_gr[i][6] for i in range(0, len(T_gr))], [i+1 for i in range(0, len(T_gr))]]
+            T_gr_2 = [[T_gr[i][6] for i in range(0, len(T_gr))], [i + 1 for i in range(0, len(T_gr))]]
             self.T_sr_gr.setData(T_gr_2[1], T_gr_2[0], pen=pen)
         else:
             self.T_sr_gr.setData([], [], pen=pyqtgraph.mkPen())
@@ -643,57 +636,17 @@ class MainWindow(Heliocs.Ui_MainWindow, QtWidgets.QMainWindow):
                     self.graphic.spisokDat.setItem(i, 0, temp7)
                     self.graphic.spisokDat.setItem(i, 1, temp8)
             self.graphic.spisokDat.resizeColumnsToContents()
-            SpO2_mid_gr_2 = [[SpO2_mid_gr[i][6] for i in range(0, len(SpO2_mid_gr))], [i + 1 for i in range(0, len(SpO2_mid_gr))]]
+            SpO2_mid_gr_2 = [[SpO2_mid_gr[i][6] for i in range(0, len(SpO2_mid_gr))],
+                             [i + 1 for i in range(0, len(SpO2_mid_gr))]]
             self.SpO2_mid_sr_gr.setData(SpO2_mid_gr_2[1], SpO2_mid_gr_2[0], pen=pen)
         else:
             self.SpO2_mid_sr_gr.setData([], [], pen=pyqtgraph.mkPen())
-
 
     def printActive(self):
         pdf = FPDF(orientation='P', unit='mm', format='A4')
         pdf.add_page()
         pdf.add_font('DejaVuSansBold', '', os.getcwd() + '\\' + '.custom_font' + '\\' + 'DejaVuSans-Bold.ttf', uni=True)
-        pdf.add_font('DejaVuSans', '', os.getcwd() + '\\' + '.custom_font' + '\\'  + 'DejaVuSans.ttf', uni=True)
-        pdf.set_font('DejaVuSansBold', '', 20)
-        pdf.cell(190, 20, txt='Аппарат ГелиОкс', align='C', ln = 1)
-        pdf.set_font('DejaVuSans', '', 12)
-        pdf.cell(150, 10, txt='ID пациента:{}'.format(self.graphic.id_patient_w.text()), ln = 1)
-        pdf.cell(150, 10, txt='ФИО пациента:{}'.format(self.graphic.Patientl_w.text()), ln = 1)
-
-        if self.birhday_w.text() != '---':
-            now = datetime.now() #Высчитывание возраста
-            temp = self.birhday_w.text().split('.')
-            temp = [int(i) for i in temp]
-            year = now.year - temp[2] - 1
-            if now.month > temp[1]:
-                year += 1
-            elif now.month == temp[1] and now.day >= temp[0]:
-                year += 1
-        else:
-            year = '---'
-
-        pdf.cell(150, 10, txt='Возраст: {}                    '
-                              'Вес: {}                    '
-                              'Рост: {}'.format(year, self.weight_w.text(), self.heigh_w.text()), ln = 1)
-        pdf.multi_cell(150, 10, txt='Комментарий: {}'.format(self.commText.toPlainText()))
-        if self.inhTable.currentRow() != -1:
-            pdf.cell(150, 10, txt='Средняя концетрация O2, %: {}'.format(self.inhTable.item(self.inhTable.currentRow(), 3).text()), ln=1)
-            pdf.cell(150, 10, txt='Средняя температура, град. C: {}'.format(self.inhTable.item(self.inhTable.currentRow(), 4).text()), ln=1)
-            pdf.cell(150, 10, txt='Дата проведения ингаляции: {}'.format(self.inhTable.item(self.inhTable.currentRow(), 0).text() + " " +
-                                                                         self.inhTable.item(self.inhTable.currentRow(), 1).text()), ln=1)
-        if not os.path.exists('\\Heliox_temp'):
-            os.mkdir('\\Heliox_temp')
-        exporter = ImageExporter(self.graphic.graph.getPlotItem())
-        exporter.export('\\Heliox_temp\\temp_image.png')
-        pdf.image('\\Heliox_temp\\temp_image.png', w=180,h=110)
-        pdf.output('\\Heliox_temp\\temp_pdf.pdf', 'F')
-        os.system('\\Heliox_temp\\temp_pdf.pdf')
-
-    def printActive2(self):
-        pdf = FPDF(orientation='P', unit='mm', format='A4')
-        pdf.add_page()
-        pdf.add_font('DejaVuSansBold', '', os.getcwd() + '\\' + '.custom_font' + '\\' + 'DejaVuSans-Bold.ttf', uni=True)
-        pdf.add_font('DejaVuSans', '', os.getcwd() + '\\' + '.custom_font' + '\\'  + 'DejaVuSans.ttf', uni=True)
+        pdf.add_font('DejaVuSans', '', os.getcwd() + '\\' + '.custom_font' + '\\' + 'DejaVuSans.ttf', uni=True)
         pdf.set_font('DejaVuSansBold', '', 20)
         pdf.cell(190, 20, txt='Аппарат ГелиОкс', align='C', ln=1)
         pdf.set_font('DejaVuSans', '', 12)
@@ -726,18 +679,64 @@ class MainWindow(Heliocs.Ui_MainWindow, QtWidgets.QMainWindow):
                 self.inhTable.item(self.inhTable.currentRow(), 1).text()), ln=1)
         if not os.path.exists('\\Heliox_temp'):
             os.mkdir('\\Heliox_temp')
-        pen1 = pyqtgraph.mkPen(color=(100,30,100), width=1, style=QtCore.Qt.SolidLine)
+        exporter = ImageExporter(self.graphic.graph.getPlotItem())
+        exporter.export('\\Heliox_temp\\temp_image.png')
+        pdf.image('\\Heliox_temp\\temp_image.png', w=180, h=110)
+        pdf.output('\\Heliox_temp\\temp_pdf.pdf', 'F')
+        os.system('\\Heliox_temp\\temp_pdf.pdf')
+        os.close()
+
+    def printActive2(self):
+        pdf = FPDF(orientation='P', unit='mm', format='A4')
+        pdf.add_page()
+        pdf.add_font('DejaVuSansBold', '', os.getcwd() + '\\' + '.custom_font' + '\\' + 'DejaVuSans-Bold.ttf', uni=True)
+        pdf.add_font('DejaVuSans', '', os.getcwd() + '\\' + '.custom_font' + '\\' + 'DejaVuSans.ttf', uni=True)
+        pdf.set_font('DejaVuSansBold', '', 20)
+        pdf.cell(190, 20, txt='Аппарат ГелиОкс', align='C', ln=1)
+        pdf.set_font('DejaVuSans', '', 12)
+        pdf.cell(150, 10, txt='ID пациента:{}'.format(self.graphic.id_patient_w.text()), ln=1)
+        pdf.cell(150, 10, txt='ФИО пациента:{}'.format(self.graphic.Patientl_w.text()), ln=1)
+
+        if self.birhday_w.text() != '---':
+            now = datetime.now()  # Высчитывание возраста
+            temp = self.birhday_w.text().split('.')
+            temp = [int(i) for i in temp]
+            year = now.year - temp[2] - 1
+            if now.month > temp[1]:
+                year += 1
+            elif now.month == temp[1] and now.day >= temp[0]:
+                year += 1
+        else:
+            year = '---'
+
+        pdf.cell(150, 10, txt='Возраст: {}                    '
+                              'Вес: {}                    '
+                              'Рост: {}'.format(year, self.weight_w.text(), self.heigh_w.text()), ln=1)
+        pdf.multi_cell(150, 10, txt='Комментарий: {}'.format(self.commText.toPlainText()))
+        if self.inhTable.currentRow() != -1:
+            pdf.cell(150, 10, txt='Средняя концетрация O2, %: {}'.format(
+                self.inhTable.item(self.inhTable.currentRow(), 3).text()), ln=1)
+            pdf.cell(150, 10, txt='Средняя температура, град. C: {}'.format(
+                self.inhTable.item(self.inhTable.currentRow(), 4).text()), ln=1)
+            pdf.cell(150, 10, txt='Дата проведения ингаляции: {}'.format(
+                self.inhTable.item(self.inhTable.currentRow(), 0).text() + " " +
+                self.inhTable.item(self.inhTable.currentRow(), 1).text()), ln=1)
+        if not os.path.exists('\\Heliox_temp'):
+            os.mkdir('\\Heliox_temp')
+        pen1 = pyqtgraph.mkPen(color=(100, 30, 100), width=1, style=QtCore.Qt.SolidLine)
         pen2 = pyqtgraph.mkPen(color=(0, 255, 255), width=1, style=QtCore.Qt.SolidLine)
         view_graph = pyqtgraph.PlotWidget()
         view_graph.setBackground('w')
-        view_graph.addLegend(offset=[400,-370])
+        view_graph.addLegend(offset=[400, -370])
         temp_obiem = view_graph.plot(self.obiem_g[0], self.obiem_g[1], pen=pen1, name='Объём (мл)')
-        temp_chastota = view_graph.plot(self.chastota_dihaniya_g[0], self.chastota_dihaniya_g[1], pen=pen2, name='Частота дыхания (1/мин)')
+        temp_chastota = view_graph.plot(self.chastota_dihaniya_g[0], self.chastota_dihaniya_g[1], pen=pen2,
+                                        name='Частота дыхания (1/мин)')
         exporter = ImageExporter(view_graph.getPlotItem())
         exporter.export('\\Heliox_temp\\temp_image2.png')
         pdf.image('\\Heliox_temp\\temp_image2.png', w=180, h=110)
         pdf.output('\\Heliox_temp\\temp_pdf2.pdf', 'F')
-        os.system('\\Heliox_temp\\temp_pdf2.pdf')
+        os.system('\\Heliox_temp\\temp_pdf2.pdf'
+        os.close()
 
     def save_graph(self):
         exporter = ImageExporter(self.graphic.graph.getPlotItem())
@@ -779,20 +778,22 @@ class MainWindow(Heliocs.Ui_MainWindow, QtWidgets.QMainWindow):
         col_width = pdf.w / 10.6
         row_height = pdf.font_size
         spacing = 3
-        temp_arr = ["Дата", "Время", "Длит, мин", "FiO2 сред", "T сред, град", "V сред, мл", "V в нач, мл", "V в конц, мл", "F ср, 1/мин", "SpO2, %"]
+        temp_arr = ["Дата", "Время", "Длит, мин", "FiO2 сред", "T сред, град", "V сред, мл", "V в нач, мл",
+                    "V в конц, мл", "F ср, 1/мин", "SpO2, %"]
         for x in temp_arr:
             pdf.cell(col_width, row_height * spacing,
                      txt=x, border=1)
         pdf.ln(row_height * spacing)
         for y in range(0, self.inhTable.rowCount()):
-            for x in range(0, self.inhTable.columnCount()-1):
+            for x in range(0, self.inhTable.columnCount() - 1):
                 pdf.cell(col_width, row_height * spacing,
-                         txt=self.inhTable.item(y,x).text(), border=1)
+                         txt=self.inhTable.item(y, x).text(), border=1)
             pdf.ln(row_height * spacing)
         pdf.output('\\Heliox_temp\\temp_pdf3.pdf', 'F')
         os.system('\\Heliox_temp\\temp_pdf3.pdf')
+        os.close()
 
-    def othergraphic(self):
+    def WindowCertainInhalation(self):
         self.graphic.graph.setBackground('w')
         self.graphic.Davlenie_v_maske.setChecked(False)
         self.graphic.koncetracia_O2.setChecked(False)
@@ -873,284 +874,279 @@ class MainWindow(Heliocs.Ui_MainWindow, QtWidgets.QMainWindow):
         self.graphic.show()
 
 
-
-
-
-
 try:
     app = QApplication(sys.argv)
     app.setStyleSheet('QMainWindow, Ui_Form, Ui_Dialog{'
-	'background: #20242E;'
-	'color: #DDDDDD;'
-	'border: 1px solid #5A5A5A;'
-'}'
+                      'background: #20242E;'
+                      'color: #DDDDDD;'
+                      'border: 1px solid #5A5A5A;'
+                      '}'
 
-'QWidget::item:selected {'
-	'background: #3D7848;'
-'}'
+                      'QWidget::item:selected {'
+                      'background: #3D7848;'
+                      '}'
 
-'QCheckBox, QRadioButton {'
-	'border: none;'
-    'color: white'
-'}'
+                      'QCheckBox, QRadioButton {'
+                      'border: none;'
+                      'color: white'
+                      '}'
 
-'QRadioButton::indicator, QCheckBox::indicator {'
-	'width: 13px;'
-	'height: 13px;'
-'}'
+                      'QRadioButton::indicator, QCheckBox::indicator {'
+                      'width: 13px;'
+                      'height: 13px;'
+                      '}'
 
-'QRadioButton::indicator::unchecked, QCheckBox::indicator::unchecked {'
-	'border: 1px solid #5A5A5A;'
-	'background: none;'
-'}'
+                      'QRadioButton::indicator::unchecked, QCheckBox::indicator::unchecked {'
+                      'border: 1px solid #5A5A5A;'
+                      'background: none;'
+                      '}'
 
-'QRadioButton::indicator:unchecked:hover, QCheckBox::indicator:unchecked:hover {'
-	'border: 1px solid #DDDDDD;'
-'}'
+                      'QRadioButton::indicator:unchecked:hover, QCheckBox::indicator:unchecked:hover {'
+                      'border: 1px solid #DDDDDD;'
+                      '}'
 
-'QRadioButton::indicator::checked, QCheckBox::indicator::checked {'
-	'border: 1px solid #FFFFFF;'
-	'background: #1B3200;'
-'}'
+                      'QRadioButton::indicator::checked, QCheckBox::indicator::checked {'
+                      'border: 1px solid #FFFFFF;'
+                      'background: #1B3200;'
+                      '}'
 
-'QRadioButton::indicator:checked:hover, QCheckBox::indicator:checked:hover {'
-	'border: 1px solid #DDDDDD;'
-	'background: #182509;'
-'}'
+                      'QRadioButton::indicator:checked:hover, QCheckBox::indicator:checked:hover {'
+                      'border: 1px solid #DDDDDD;'
+                      'background: #182509;'
+                      '}'
 
-'QGroupBox {'
-	'margin-top: 6px;'
-    'color: white'
-'}'
+                      'QGroupBox {'
+                      'margin-top: 6px;'
+                      'color: white'
+                      '}'
 
-'QGroupBox::title {'
-	'top: -10px;'
-	'left: 7px;'
-'}'
+                      'QGroupBox::title {'
+                      'top: -10px;'
+                      'left: 7px;'
+                      '}'
 
-'QScrollBar {'
-	'border: 1px solid #5A5A5A;'
-	'background: #191919;'
-'}'
+                      'QScrollBar {'
+                      'border: 1px solid #5A5A5A;'
+                      'background: #191919;'
+                      '}'
 
-'QScrollBar:horizontal {'
-	'height: 15px;'
-	'margin: 0px 0px 0px 32px;'
-'}'
+                      'QScrollBar:horizontal {'
+                      'height: 15px;'
+                      'margin: 0px 0px 0px 32px;'
+                      '}'
 
-'QScrollBar:vertical {'
-	'width: 15px;'
-	'margin: 32px 0px 0px 0px;'
-'}'
+                      'QScrollBar:vertical {'
+                      'width: 15px;'
+                      'margin: 32px 0px 0px 0px;'
+                      '}'
 
-'QScrollBar::handle {'
-	'background: #353535;'
-	'border: 1px solid #5A5A5A;'
-'}'
+                      'QScrollBar::handle {'
+                      'background: #353535;'
+                      'border: 1px solid #5A5A5A;'
+                      '}'
 
-'QScrollBar::handle:horizontal {'
-	'border-width: 0px 1px 0px 1px;'
-'}'
+                      'QScrollBar::handle:horizontal {'
+                      'border-width: 0px 1px 0px 1px;'
+                      '}'
 
-'QScrollBar::handle:vertical {'
-	'border-width: 1px 0px 1px 0px;'
-'}'
+                      'QScrollBar::handle:vertical {'
+                      'border-width: 1px 0px 1px 0px;'
+                      '}'
 
-'QScrollBar::handle:horizontal {'
-	'min-width: 20px;'
-'}'
+                      'QScrollBar::handle:horizontal {'
+                      'min-width: 20px;'
+                      '}'
 
-'QScrollBar::handle:vertical {'
-	'min-height: 20px;'
-'}'
+                      'QScrollBar::handle:vertical {'
+                      'min-height: 20px;'
+                      '}'
 
-'QScrollBar::add-line, QScrollBar::sub-line {'
-	'background:#353535;'
-	'border: 1px solid #5A5A5A;'
-	'subcontrol-origin: margin;'
-'}'
+                      'QScrollBar::add-line, QScrollBar::sub-line {'
+                      'background:#353535;'
+                      'border: 1px solid #5A5A5A;'
+                      'subcontrol-origin: margin;'
+                      '}'
 
-'QScrollBar::add-line {'
-	'position: absolute;'
-'}'
+                      'QScrollBar::add-line {'
+                      'position: absolute;'
+                      '}'
 
-'QScrollBar::add-line:horizontal {'
-	'width: 15px;'
-	'subcontrol-position: left;'
-	'left: 15px;'
-'}'
+                      'QScrollBar::add-line:horizontal {'
+                      'width: 15px;'
+                      'subcontrol-position: left;'
+                      'left: 15px;'
+                      '}'
 
-'QScrollBar::add-line:vertical {'
-	'height: 15px;'
-	'subcontrol-position: top;'
-	'top: 15px;'
-'}'
+                      'QScrollBar::add-line:vertical {'
+                      'height: 15px;'
+                      'subcontrol-position: top;'
+                      'top: 15px;'
+                      '}'
 
-'QScrollBar::sub-line:horizontal {'
-	'width: 15px;'
-	'subcontrol-position: top left;'
-'}'
+                      'QScrollBar::sub-line:horizontal {'
+                      'width: 15px;'
+                      'subcontrol-position: top left;'
+                      '}'
 
-'QScrollBar::sub-line:vertical {'
-	'height: 15px;'
-	'subcontrol-position: top;'
-'}'
+                      'QScrollBar::sub-line:vertical {'
+                      'height: 15px;'
+                      'subcontrol-position: top;'
+                      '}'
 
-'QScrollBar:left-arrow, QScrollBar::right-arrow, QScrollBar::up-arrow, QScrollBar::down-arrow {'
-	'border: 1px solid #5A5A5A;'
-	'width: 3px;'
-	'height: 3px;'
-'}'
+                      'QScrollBar:left-arrow, QScrollBar::right-arrow, QScrollBar::up-arrow, QScrollBar::down-arrow {'
+                      'border: 1px solid #5A5A5A;'
+                      'width: 3px;'
+                      'height: 3px;'
+                      '}'
 
-'QScrollBar::add-page, QScrollBar::sub-page {'
-	'background: none;'
-'}'
+                      'QScrollBar::add-page, QScrollBar::sub-page {'
+                      'background: none;'
+                      '}'
 
-'QAbstractButton:hover {'
-	'background: #353535;'
-'}'
+                      'QAbstractButton:hover {'
+                      'background: #353535;'
+                      '}'
 
-'QAbstractButton:pressed {'
-	'background: #5A5A5A;'
-'}'
+                      'QAbstractButton:pressed {'
+                      'background: #5A5A5A;'
+                      '}'
 
-'QAbstractItemView {'
-	'show-decoration-selected: 1;'
-	'selection-background-color: #3D7848;'
-	'selection-color: #DDDDDD;'
-	'alternate-background-color: #353535;'
-'}'
+                      'QAbstractItemView {'
+                      'show-decoration-selected: 1;'
+                      'selection-background-color: #3D7848;'
+                      'selection-color: #DDDDDD;'
+                      'alternate-background-color: #353535;'
+                      '}'
 
-'QHeaderView {'
-	'border: 1px solid #5A5A5A;'
-'}'
+                      'QHeaderView {'
+                      'border: 1px solid #5A5A5A;'
+                      '}'
 
-'QHeaderView::section {'
-	'background: #092244;'
-	'border: 1px solid #5A5A5A;'
-	'padding: 4px;'
-    'color: white'
-'}'
+                      'QHeaderView::section {'
+                      'background: #092244;'
+                      'border: 1px solid #5A5A5A;'
+                      'padding: 4px;'
+                      'color: white'
+                      '}'
 
-'QHeaderView::section:selected, QHeaderView::section::checked {'
-	'background: #353535;'
-'}'
+                      'QHeaderView::section:selected, QHeaderView::section::checked {'
+                      'background: #353535;'
+                      '}'
 
-'QTableView {'
-	'gridline-color: #5A5A5A;'
-'}'
+                      'QTableView {'
+                      'gridline-color: #5A5A5A;'
+                      '}'
 
-'QTabBar {'
-	'margin-left: 2px;'
-'}'
+                      'QTabBar {'
+                      'margin-left: 2px;'
+                      '}'
 
-'QTabBar::tab {'
-	'border-radius: 0px;'
-	'padding: 4px;'
-	'margin: 4px;'
-'}'
+                      'QTabBar::tab {'
+                      'border-radius: 0px;'
+                      'padding: 4px;'
+                      'margin: 4px;'
+                      '}'
 
-'QTabBar::tab:selected {'
-	'background: #353535;'
-'}'
+                      'QTabBar::tab:selected {'
+                      'background: #353535;'
+                      '}'
 
-'QComboBox::down-arrow {'
-	'border: 1px solid #5A5A5A;'
-	'background: #353535;'
-'}'
+                      'QComboBox::down-arrow {'
+                      'border: 1px solid #5A5A5A;'
+                      'background: #353535;'
+                      '}'
 
-'QComboBox::drop-down {'
-	'border: 1px solid #5A5A5A;'
-	'background: #353535;'
-'}'
+                      'QComboBox::drop-down {'
+                      'border: 1px solid #5A5A5A;'
+                      'background: #353535;'
+                      '}'
 
-'QComboBox::down-arrow {'
-	'width: 3px;'
-	'height: 3px;'
-	'border: 1px solid #5A5A5A;'
-'}'
+                      'QComboBox::down-arrow {'
+                      'width: 3px;'
+                      'height: 3px;'
+                      'border: 1px solid #5A5A5A;'
+                      '}'
 
-'QAbstractSpinBox {'
-	'padding-right: 15px;'
-'}'
+                      'QAbstractSpinBox {'
+                      'padding-right: 15px;'
+                      '}'
 
-'QAbstractSpinBox::up-button, QAbstractSpinBox::down-button {'
-	'border: 1px solid #5A5A5A;'
-	'background: #353535;'
-	'subcontrol-origin: border;'
-'}'
+                      'QAbstractSpinBox::up-button, QAbstractSpinBox::down-button {'
+                      'border: 1px solid #5A5A5A;'
+                      'background: #353535;'
+                      'subcontrol-origin: border;'
+                      '}'
 
-'QAbstractSpinBox::up-arrow, QAbstractSpinBox::down-arrow {'
-	'width: 3px;'
-	'height: 3px;'
-	'border: 1px solid #5A5A5A;'
-'}'
+                      'QAbstractSpinBox::up-arrow, QAbstractSpinBox::down-arrow {'
+                      'width: 3px;'
+                      'height: 3px;'
+                      'border: 1px solid #5A5A5A;'
+                      '}'
 
-'QSlider {'
-	'border: none;'
-'}'
+                      'QSlider {'
+                      'border: none;'
+                      '}'
 
-'QSlider::groove:horizontal {'
-	'height: 5px;'
-	'margin: 4px 0px 4px 0px;'
-'}'
+                      'QSlider::groove:horizontal {'
+                      'height: 5px;'
+                      'margin: 4px 0px 4px 0px;'
+                      '}'
 
-'QSlider::groove:vertical {'
-	'width: 5px;'
-	'margin: 0px 4px 0px 4px;'
-'}'
+                      'QSlider::groove:vertical {'
+                      'width: 5px;'
+                      'margin: 0px 4px 0px 4px;'
+                      '}'
 
-'QSlider::handle {'
-	'border: 1px solid #5A5A5A;'
-	'background: #353535;'
-'}'
+                      'QSlider::handle {'
+                      'border: 1px solid #5A5A5A;'
+                      'background: #353535;'
+                      '}'
 
-'QSlider::handle:horizontal {'
-	'width: 15px;'
-	'margin: -4px 0px -4px 0px;'
-'}'
+                      'QSlider::handle:horizontal {'
+                      'width: 15px;'
+                      'margin: -4px 0px -4px 0px;'
+                      '}'
 
-'QSlider::handle:vertical {'
-	'height: 15px;'
-	'margin: 0px -4px 0px -4px;'
-'}'
+                      'QSlider::handle:vertical {'
+                      'height: 15px;'
+                      'margin: 0px -4px 0px -4px;'
+                      '}'
 
-'QSlider::add-page:vertical, QSlider::sub-page:horizontal {'
-	'background: #3D7848;'
-'}'
+                      'QSlider::add-page:vertical, QSlider::sub-page:horizontal {'
+                      'background: #3D7848;'
+                      '}'
 
-'QSlider::sub-page:vertical, QSlider::add-page:horizontal {'
-	'background: #353535;'
-'}'
+                      'QSlider::sub-page:vertical, QSlider::add-page:horizontal {'
+                      'background: #353535;'
+                      '}'
 
-'QLabel {'
-	'border: none;'
-    'color: white'
-'}'
+                      'QLabel {'
+                      'border: none;'
+                      'color: white'
+                      '}'
 
-'QProgressBar {'
-	'text-align: center;'
-'}'
+                      'QProgressBar {'
+                      'text-align: center;'
+                      '}'
 
-'QProgressBar::chunk {'
-	'width: 1px;'
-	'background-color: #3D7848;'
-'}'
+                      'QProgressBar::chunk {'
+                      'width: 1px;'
+                      'background-color: #3D7848;'
+                      '}'
 
-'QMenu::separator {'
-	'background: #353535;'
-'}'
-                      
-'QTableWidget, QListWidget{'
-    'font: 15px;'                      
-'}'
-                      
-'::section{'
-    'font: bold 11px;'
-'}')
+                      'QMenu::separator {'
+                      'background: #353535;'
+                      '}'
+
+                      'QTableWidget, QListWidget{'
+                      'font: 15px;'
+                      '}'
+
+                      '::section{'
+                      'font: bold 11px;'
+                      '}')
     window = MainWindow()
     window.show()
     sys.exit(app.exec_())
 except:
     sys.exit(0)
-
