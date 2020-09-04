@@ -5,9 +5,10 @@
 # Created by: PyQt5 UI code generator 5.13.2
 #
 # WARNING! All changes made in this file will be lost!
-
+import os
 
 from PyQt5 import QtCore, QtGui, QtWidgets
+from PyQt5.QtGui import QIcon
 
 
 class Ui_Dialog(QtWidgets.QWidget):
@@ -18,6 +19,7 @@ class Ui_Dialog(QtWidgets.QWidget):
     def setupUi(self, Dialog):
         Dialog.setObjectName("Dialog")
         Dialog.resize(1000, 400)
+        self.setWindowIcon(QIcon(os.getcwd() + '\\' + '.icon' + '\\' + 'icon.ico'))
         self.formLayout_3 = QtWidgets.QFormLayout(Dialog)
         self.formLayout_3.setObjectName("formLayout_3")
         self.widget_2 = QtWidgets.QWidget(Dialog)

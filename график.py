@@ -9,7 +9,7 @@ import os
 
 import pyqtgraph
 from PyQt5 import QtCore, QtGui, QtWidgets
-from PyQt5.QtGui import QFont
+from PyQt5.QtGui import QFont, QIcon
 from PyQt5.QtWidgets import QSizePolicy, QFormLayout, QHeaderView
 from pyqtgraph import PlotWidget
 
@@ -23,6 +23,7 @@ class Ui_Form(QtWidgets.QWidget):
         Form.setObjectName("Form")
         Form.setEnabled(True)
         Form.resize(994, 700)
+        self.setWindowIcon(QIcon(os.getcwd() + '\\' + '.icon' + '\\' + 'icon.ico'))
         self.horizontalLayout = QtWidgets.QHBoxLayout(Form)
         self.horizontalLayout.setObjectName("horizontalLayout")
         self.widget_2 = QtWidgets.QWidget(Form)

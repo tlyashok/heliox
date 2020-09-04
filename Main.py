@@ -56,6 +56,7 @@ class MainWindow(Heliocs.Ui_MainWindow, QtWidgets.QMainWindow):
         self.inhTable.itemDoubleClicked.connect(self.selectRowDoubleClicked)
         self.inhTable.setSelectionBehavior(QAbstractItemView.SelectRows)
         self.inhTable.setSelectionMode(QAbstractItemView.SingleSelection)
+        self.clearArr()
 
     def selectRowDoubleClicked(self):
         self.details.show()
@@ -683,8 +684,7 @@ class MainWindow(Heliocs.Ui_MainWindow, QtWidgets.QMainWindow):
         exporter.export('\\Heliox_temp\\temp_image.png')
         pdf.image('\\Heliox_temp\\temp_image.png', w=180, h=110)
         pdf.output('\\Heliox_temp\\temp_pdf.pdf', 'F')
-        os.system('\\Heliox_temp\\temp_pdf.pdf')
-        os.close()
+        os.startfile('\\Heliox_temp\\temp_pdf.pdf')
 
     def printActive2(self):
         pdf = FPDF(orientation='P', unit='mm', format='A4')
@@ -735,8 +735,7 @@ class MainWindow(Heliocs.Ui_MainWindow, QtWidgets.QMainWindow):
         exporter.export('\\Heliox_temp\\temp_image2.png')
         pdf.image('\\Heliox_temp\\temp_image2.png', w=180, h=110)
         pdf.output('\\Heliox_temp\\temp_pdf2.pdf', 'F')
-        os.system('\\Heliox_temp\\temp_pdf2.pdf'
-        os.close()
+        os.startfile('\\Heliox_temp\\temp_pdf2.pdf')
 
     def save_graph(self):
         exporter = ImageExporter(self.graphic.graph.getPlotItem())
@@ -790,8 +789,7 @@ class MainWindow(Heliocs.Ui_MainWindow, QtWidgets.QMainWindow):
                          txt=self.inhTable.item(y, x).text(), border=1)
             pdf.ln(row_height * spacing)
         pdf.output('\\Heliox_temp\\temp_pdf3.pdf', 'F')
-        os.system('\\Heliox_temp\\temp_pdf3.pdf')
-        os.close()
+        os.startfile('\\Heliox_temp\\temp_pdf3.pdf')
 
     def WindowCertainInhalation(self):
         self.graphic.graph.setBackground('w')
